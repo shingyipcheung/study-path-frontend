@@ -12,12 +12,13 @@
   "dependencies": {
     "bootstrap-vue": "^0.16.1",
     "d3": "^4.0.0",
+    "d3-selection-multi": "^1.0.1",
     "echarts": "^3.6.2",
+    "lodash": "^4.17.4",
     "parcoord-es": "^1.0.1",
     "vue": "^2.5.2",
     "vue-resource": "^1.0.0",
-    "vue-router": "^3.0.1",
-    "d3-selection-multi": "^1.0.1"
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

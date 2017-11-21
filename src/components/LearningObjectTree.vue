@@ -1,71 +1,55 @@
 <template>
-  <div id="root">
     <svg></svg>
-  </div>
 </template>
 
 <script>
+// http://bl.ocks.org/fancellu/2c782394602a93921faff74e594d1bb1
 import * as d3 from 'd3';
 import "d3-selection-multi";
+import _ from 'lodash';
+import axios from 'axios';
 
 export default {
   name: "learning-object-tree",
   data() {
     return {
-      nodes_raw:[
-        "primitive_type",
-        "variable",
-        "operator",
-        "array",
-        "nd_array",
-        "string",
-        "branch",
-        "loop",
-        "object_class",
-        "instance_variable",
-        "method",
-        "recursion"
-      ],
       nodes:[],
-      links_raw:[],
-      links:[]
+      links:[],
+      width: 1100,
+      height: 200,
     }
   },
   mounted() {
-    //pre-process the nodes
-    var nodes = [];
-    for (var i = 0; i < this.nodes_raw.length; i ++) {
-      nodes.push({
-        "name": this.nodes_raw[i],
-        "label": this.nodes_raw[i],
-        "id": i
+    axios.all([
+      axios.get("http://127.0.0.1:8000/study_plan/concepts/"),
+      axios.get("http://127.0.0.1:8000/study_plan/graph/")
+    ])
+    .then(axios.spread((conceptsRes, edgesRes) => {
+      // nodes
+      this.nodes = conceptsRes.data;
+
+      var margin = {top: 66, right: 40, bottom: 20, left: 50}
+      let x_scale = d3.scaleLinear()
+        .domain([0, this.nodes.length - 1])
+        .range([0 + margin.left, this.width - margin.right]);
+
+      this.nodes.forEach((node, i) => { 
+        this.nodes[i] = {
+          name: node,
+          fx: x_scale(i),
+          y: this.height / 2
+        };
       });
-    }
-    this.nodes = nodes;
-    // console.log(this.nodes);
-
-    this.$http.get('http://127.0.0.1:8000/study_plan/graph/').then(res => {
-      // console.log(res.data);
-      this.links_raw = res.data;
-      // pre-process the links to fit the format
-      var links = [];
-      for (var i = 0; i < this.links_raw.length; i++) {
-        var link = this.links_raw[i];
-        console.log(link['source'], this.nodes_raw.findIndex(d => d == link['source']));
-        links.push({
-          "source": this.nodes[this.nodes_raw.findIndex(d => d == link['source'])],
-          "target": this.nodes[this.nodes_raw.findIndex(d => d == link['target'])],
-          "value": link['value']
-        });
-      }
-      this.links = links;
-      console.log(links);
-
+      // links
+      this.links = edgesRes.data;
+      this.links.forEach((link) => {
+          link["source"] = _.find(this.nodes, d => d.name == link['source']);
+          link['target'] = _.find(this.nodes, d => d.name == link['target']);
+      });
       // start to draw
       this.start_draw();
-    }, res => {
-      console.error(res);
-    })
+    }))
+    .catch(error => console.log(error));
   },
   methods: {
     // main entry for the drawing function
@@ -73,9 +57,9 @@ export default {
       var that = this;
       var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
-      var svg = d3.select("svg"),
-          width = 1100,
-          height = 200,
+      var svg = d3.select(this.$el)
+      .attr("width", this.width)
+      .attr("height", this.height),
           edgepaths,
           edgelabels,
           node,
@@ -96,7 +80,7 @@ export default {
           .style('stroke','none');
 
       var simulation = d3.forceSimulation()
-          .force("link", d3.forceLink().id(function (d) {return d.id;}).distance(100).strength(1))
+          .force("link", d3.forceLink().id(function (d) {return d.name;}).distance(100).strength(1))
           .force("charge", d3.forceManyBody())
 
       var links = this.links;
@@ -143,8 +127,8 @@ export default {
               .attr('xlink:href', function (d, i) {return '#edgepath' + i})
               .style("text-anchor", "middle")
               .style("pointer-events", "none")
-              .attr("startOffset", "50%")
-              .text(function (d) {return d.type});
+              .attr("startOffset", "50%");
+              // .text(function (d) {return d.type});
 
           node = svg.selectAll(".node")
               .data(nodes)
@@ -161,8 +145,8 @@ export default {
               .attr("r", 5)
               .style("fill", function (d, i) {return colors(i);})
 
-          node.append("title")
-              .text(function (d) {return d.id;});
+          // node.append("title")
+          //     .text(function (d) {return d.id;});
 
           node.append("text")
               .attr("dy", -3)
@@ -175,59 +159,35 @@ export default {
               .links(links);
       }
 
-      var initialized = false;
-
       function ticked() {
-        if(!initialized) {
-          // can also check multiple nodes here...
-          if(!initialized) initialize();
-        } else {
-          link.attr("x1", function (d) {return d.source.x;})
-              .attr("y1", function (d) {return d.source.y;})
-              .attr("x2", function (d) {return d.target.x;})
-              .attr("y2", function (d) {return d.target.y;});
+        link.attr("x1", function (d) {return d.source.x;})
+            .attr("y1", function (d) {return d.source.y;})
+            .attr("x2", function (d) {return d.target.x;})
+            .attr("y2", function (d) {return d.target.y;});
 
-          node.attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
+        node.attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
 
-          edgepaths.attr('d', function (d) {
-              return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-          });
+        edgepaths.attr('d', function (d) {
+            return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+        });
 
-          edgelabels.attr('transform', function (d) {
-              if (d.target.x < d.source.x) {
-                  var bbox = this.getBBox();
+        edgelabels.attr('transform', function (d) {
+            if (d.target.x < d.source.x) {
+                var bbox = this.getBBox();
 
-                  var rx = bbox.x + bbox.width / 2;
-                  var ry = bbox.y + bbox.height / 2;
-                  return 'rotate(180 ' + rx + ' ' + ry + ')';
-              }
-              else {
-                  return 'rotate(0)';
-              }
-          });
-        }
-      }
-
-
-
-      function initialize() {
-        //set the node to fixed x
-        var margin = {top: 66, right: 40, bottom: 20, left: 50}
-        var x_scale = d3.scaleLinear()
-          .domain([0, that.nodes.length - 1])
-          .range([0 + margin.left, width - margin.right]);
-
-        nodes.forEach((node, i) => {
-          // node.x = width/2;
-          console.log(x_scale(i));
-          node.fx = x_scale(i);
-          node.y = height/2;
-        })
-        initialized = true;
+                var rx = bbox.x + bbox.width / 2;
+                var ry = bbox.y + bbox.height / 2;
+                return 'rotate(180 ' + rx + ' ' + ry + ')';
+            }
+            else {
+                return 'rotate(0)';
+            }
+        });
       }
 
       function dragstarted(d) {
-          if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+          if (!d3.event.active) 
+            simulation.alphaTarget(0.3).restart();
           d.fx = d.x;
           d.fy = d.y;
       }
@@ -245,11 +205,4 @@ export default {
 .node {}
 
 .link { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
-</style>
-
-<style scoped>
-#root svg {
-  width: 1100px;
-  height: 200px;
-}
 </style>
