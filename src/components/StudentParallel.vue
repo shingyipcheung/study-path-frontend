@@ -3,6 +3,25 @@
 <template>
 <div id="root">
   <div id="graph"></div>
+  <div id="student-details" class="student-details">
+    <div class="overflow-static">
+      <h4>
+        Total students selected: {{selected_students.length}}
+      </h4>
+    </div>
+    <div class="overflow_dynamic">
+      <div v-for="student in selected_students" class="student">
+        <p>
+          ID: {{student.student_id}}
+          <span v-for="key in dimensions">
+            {{key.key}}:
+            {{student[key.key] ? student[key.key] : 0}}
+          </span>
+        </p>
+
+      </div>
+    </div>
+  </div>
 </div>
 </template>
 
@@ -18,6 +37,20 @@ export default {
       students: [],
       learning_objects: [],
       total_points: [],
+      selected_students: [],
+      dimensions: ["primitive_type",
+        "variable",
+        "operator",
+        "array",
+        "nd_array",
+        "string",
+        "branch",
+        "loop",
+        "object_class",
+        "instance_variable",
+        "method",
+        "recursion"
+      ]
     }
   },
   mounted() {
@@ -30,11 +63,17 @@ export default {
       console.error(res)
     })
   },
+  // watch: {
+  //   selected_students: function(newVal, oldVal) {
+  //     console.log(newVal);
+  //   }
+  // },
   methods: {
     start_draw() {
       // get graph DOM to set width later
+      var that = this;
       var graph = d3.select("#graph").node();
-          console.log(graph.getBoundingClientRect().width);
+          // console.log(graph.getBoundingClientRect().width);
 
       var margin = {top: 66, right: 50, bottom: 20, left: 50},
           width = graph.getBoundingClientRect().width - margin.left - margin.right,
@@ -83,19 +122,7 @@ export default {
       // })
 
       // self define a reasonable order for dimensions first
-      var dimensions = ["primitive_type",
-        "variable",
-        "operator",
-        "array",
-        "nd_array",
-        "string",
-        "branch",
-        "loop",
-        "object_class",
-        "instance_variable",
-        "method",
-        "recursion"
-      ];
+      var dimensions = this.dimensions;
 
 
         // set to required dimension form.
@@ -140,7 +167,7 @@ export default {
       ctx.lineWidth = 1.5;
       ctx.scale(devicePixelRatio, devicePixelRatio);
 
-      var output = d3.select("#graph").append("pre");
+      // var output = d3.select("#graph").append("pre");
 
       var axes = svg.selectAll(".axis")
           .data(dimensions)
@@ -207,7 +234,7 @@ export default {
       // d3.selectAll(".axis.food_group .tick text")
       //   .style("fill", color);
 
-      output.text(d3.tsvFormat(data.slice(0,24)));
+      // output.text(d3.tsvFormat(data.slice(0,24)));
 
       // END OF THE MAIN FUNCTION TO DRAW
       // the following are the helper functions
@@ -320,8 +347,10 @@ export default {
         ctx.clearRect(0,0,width,height);
         ctx.globalAlpha = d3.min([0.85/Math.pow(selected.length,0.3),1]);
         render(selected);
+        that.selected_students = selected;
+        // console.log(this.selected_students);
 
-        output.text(d3.tsvFormat(selected.slice(0,24)));
+        // output.text(d3.tsvFormat(selected.slice(0,24)));
       }
 
       return;
@@ -333,7 +362,31 @@ export default {
 </script>
 
 <style scoped>
+#student-details {
+  width: 100%;
+  height: 300px;
+  /*margin: 6px 12px;
+  tab-size: 40;
+  font-size: 10px;*/
+  overflow: hidden;
+}
 
+#student-details .overflow-static {
+  height: 50px;
+}
+
+#student-details .overflow_dynamic {
+  height: 250px;
+  overflow: auto;
+}
+
+.student {
+  margin-left: 40px;
+}
+
+.student p span {
+  font-size: 0.7rem
+}
 </style>
 
 <style>
@@ -409,12 +462,4 @@ export default {
   stroke-width: 1px;
 }
 
-pre {
-  width: 100%;
-  height: 300px;
-  margin: 6px 12px;
-  tab-size: 40;
-  font-size: 10px;
-  overflow: auto;
-}
 </style>

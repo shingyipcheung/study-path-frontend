@@ -1,5 +1,7 @@
 <template>
+  <div>
     <svg></svg>
+  </div>
 </template>
 
 <script>
@@ -28,25 +30,28 @@ export default {
       // nodes
       this.nodes = conceptsRes.data;
 
+      // set the x scale to set the position of the nodes to the corresponding position of paracoord
       var margin = {top: 66, right: 40, bottom: 20, left: 50}
       let x_scale = d3.scaleLinear()
         .domain([0, this.nodes.length - 1])
         .range([0 + margin.left, this.width - margin.right]);
 
-      this.nodes.forEach((node, i) => { 
+      this.nodes.forEach((node, i) => {
         this.nodes[i] = {
           name: node,
           fx: x_scale(i),
-          y: this.height / 2
+          y: this.height / 2 // this line doesn't work here.
         };
       });
+
       // links
       this.links = edgesRes.data;
       this.links.forEach((link) => {
           link["source"] = _.find(this.nodes, d => d.name == link['source']);
           link['target'] = _.find(this.nodes, d => d.name == link['target']);
       });
-      // start to draw
+
+      // start to draw, main entry
       this.start_draw();
     }))
     .catch(error => console.log(error));
@@ -57,9 +62,14 @@ export default {
       var that = this;
       var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
-      var svg = d3.select(this.$el)
-      .attr("width", this.width)
-      .attr("height", this.height),
+      // set the color scale for the risk ratio labels
+      let label_color = d3.scaleLinear()
+        .domain(d3.extent(this.links, d => d.value))
+        .range([d3.rgb("#FFCC99"), d3.rgb('#FF0000')]);
+
+      var svg = d3.select(this.$el).select("svg")
+        .attr("width", this.width)
+        .attr("height", this.height),
           edgepaths,
           edgelabels,
           node,
@@ -119,16 +129,17 @@ export default {
               .attrs({
                   'class': 'edgelabel',
                   'id': function (d, i) {return 'edgelabel' + i},
-                  'font-size': 10,
-                  'fill': '#aaa'
+                  'font-size': "1rem",
+                  'fill': d => label_color(d.value)
               });
 
           edgelabels.append('textPath')
               .attr('xlink:href', function (d, i) {return '#edgepath' + i})
               .style("text-anchor", "middle")
               .style("pointer-events", "none")
-              .attr("startOffset", "50%");
-              // .text(function (d) {return d.type});
+              .attr("startOffset", "50%")
+              .text(function (d) {return d.value.toFixed(2)})
+              // .attr("color", d => label_color(d.value));
 
           node = svg.selectAll(".node")
               .data(nodes)
@@ -143,13 +154,11 @@ export default {
 
           node.append("circle")
               .attr("r", 5)
-              .style("fill", function (d, i) {return colors(i);})
-
-          // node.append("title")
-          //     .text(function (d) {return d.id;});
+              .style("fill", function (d, i) {return colors(i);});
 
           node.append("text")
               .attr("dy", -3)
+              .attr("text-anchor", "middle")
               .text(function (d) {return d.name;});
 
           simulation.nodes(nodes)
@@ -159,7 +168,16 @@ export default {
               .links(links);
       }
 
+      // setting y not working in the upper there.
+      var initialized = false;
+
       function ticked() {
+        if (! initialized) {
+          that.nodes.forEach(node => {
+            node.y = that.height / 2;
+          })
+          initialized = true;
+        }
         link.attr("x1", function (d) {return d.source.x;})
             .attr("y1", function (d) {return d.source.y;})
             .attr("x2", function (d) {return d.target.x;})
@@ -185,15 +203,16 @@ export default {
         });
       }
 
+      // fix the y coord to enforce the correspondence of node and parallel coordinates
       function dragstarted(d) {
-          if (!d3.event.active) 
+          if (!d3.event.active)
             simulation.alphaTarget(0.3).restart();
-          d.fx = d.x;
+          // d.fx = d.x;
           d.fy = d.y;
       }
 
       function dragged(d) {
-          d.fx = d3.event.x;
+          // d.fx = d3.event.x;
           d.fy = d3.event.y;
       }
     }
