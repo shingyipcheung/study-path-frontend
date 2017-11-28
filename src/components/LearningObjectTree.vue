@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="root">
     <svg></svg>
   </div>
 </template>
@@ -18,7 +18,7 @@ export default {
       nodes:[],
       links:[],
       width: 1100,
-      height: 200,
+      height: 300,
     }
   },
   mounted() {
@@ -29,6 +29,12 @@ export default {
     .then(axios.spread((conceptsRes, edgesRes) => {
       // nodes
       this.nodes = conceptsRes.data;
+
+      // get width and height
+      var root = d3.select(this.$el).node();
+      console.log(root);
+      this.width = root.getBoundingClientRect().width;
+      console.log(this.width);
 
       // set the x scale to set the position of the nodes to the corresponding position of paracoord
       var margin = {top: 66, right: 40, bottom: 20, left: 50}
@@ -92,6 +98,7 @@ export default {
       var simulation = d3.forceSimulation()
           .force("link", d3.forceLink().id(function (d) {return d.name;}).distance(100).strength(1))
           .force("charge", d3.forceManyBody())
+          .alphaTarget(1)
 
       var links = this.links;
       var nodes = this.nodes;
@@ -219,6 +226,16 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+#root {
+  width: 100%;
+}
+
+#root svg {
+  width: 100%;
+}
+</style>
 
 <style>
 .node {}

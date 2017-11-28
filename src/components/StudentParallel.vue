@@ -4,13 +4,21 @@
 <div id="root">
   <div id="graph"></div>
   <div id="student-details" class="student-details">
-    <div class="overflow-static">
-      <h4>
+    <div>
+      <h5>
         Total students selected: {{selected_students.length}}
-      </h4>
+      </h5>
     </div>
-    <div class="overflow_dynamic">
-      <div v-for="student in selected_students" class="student">
+
+    <div>
+      <b-table hover striped small :per-page="4"
+      :items="selected_students" :fields="fields" :current-page="current_page">
+      </b-table>
+      <b-pagination size="md" align="center"
+      :total-rows="selected_students.length"
+      v-model="current_page" :per-page="4">
+      </b-pagination>
+      <!-- <div v-for="student in selected_students" class="student">
         <p>
           ID: {{student.student_id}}
           <span v-for="key in dimensions">
@@ -18,8 +26,7 @@
             {{student[key.key] ? student[key.key] : 0}}
           </span>
         </p>
-
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
@@ -38,7 +45,8 @@ export default {
       learning_objects: [],
       total_points: [],
       selected_students: [],
-      dimensions: ["primitive_type",
+      dimensions: [
+        "primitive_type",
         "variable",
         "operator",
         "array",
@@ -50,12 +58,39 @@ export default {
         "instance_variable",
         "method",
         "recursion"
-      ]
+      ],
+      // data required for the table and pagination
+      fields: [
+        {key:"student_id", sortable:true},
+        {key:"primitive_type", sortable:true},
+        {key:"variable", sortable:true},
+        {key:"operator", sortable:true},
+        {key:"array", sortable:true},
+        {key:"nd_array", sortable:true},
+        {key:"string", sortable:true},
+        {key:"branch", sortable:true},
+        {key:"loop", sortable:true},
+        {key:"object_class", sortable:true},
+        {key:"instance_variable", sortable:true},
+        {key:"method", sortable:true},
+        {key:"recursion", sortable:true},
+      ],
+      current_page: 1
     }
   },
   mounted() {
     this.$http.get('http://127.0.0.1:8000/study_plan/concept_score/all/').then(res => {
       this.students = res.data;
+      // cut the extra numbers on the right of floating point
+      this.students.forEach(d => {
+        for (const key of Object.keys(d)) {
+          if (key != "student_id") {
+            d[key] = d[key].toFixed(2);
+          }
+        }
+      })
+      // set the default selection to all students
+      this.selected_students = this.students;
       // console.log(this.students);
       this.start_draw();
       //console.log(this.students);
@@ -362,6 +397,10 @@ export default {
 </script>
 
 <style scoped>
+#root {
+  width: 100%;
+}
+
 #student-details {
   width: 100%;
   height: 300px;
@@ -407,7 +446,7 @@ export default {
 }
 
 .axis .title {
-  font-size: 10px;
+  font-size: 15px;
   transform: rotate(-21deg) translate(-5px,-6px);
   fill: #222;
 }

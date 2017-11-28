@@ -3,13 +3,20 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+import BootstrapVue from 'bootstrap-vue'
+Vue.use(BootstrapVue);
 // import VueResource module
 import VueResource from 'vue-resource'
 Vue.use(VueResource);
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+// not to use Vuetify because of a bug
+// import Vuetify from 'vuetify'
+// import 'vuetify/dist/vuetify.min.css'
+// Vue.use(Vuetify);
+
 // allow cross origin http traffics
 Vue.http.headers.common['Content-Type'] = 'application/json'
 Vue.http.headers.common['Access-Control-Allow-Origin'] = '*'

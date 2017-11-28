@@ -4,6 +4,7 @@ import HelloWorld from '@/components/HelloWorld'
 // import StudentParallel from '@/components/StudentParallel'
 import Students from '@/components/Students'
 
+
 Vue.use(Router)
 
 export default new Router({

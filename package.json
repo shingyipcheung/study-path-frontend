@@ -10,7 +10,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "bootstrap-vue": "^0.16.1",
+    "bootstrap-vue": "^1.2.0",
     "d3": "^4.0.0",
     "d3-selection-multi": "^1.0.1",
     "echarts": "^3.6.2",
@@ -19,7 +19,9 @@
     "vue": "^2.5.2",
     "vue-resource": "^1.0.0",
     "vue-router": "^3.0.1",
-    "axios":"^0.17.1"
+    "axios":"^0.17.1",
+    "vuetify": "^0.17.0",
+    "css-loader": "0.28.7"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
