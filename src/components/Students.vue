@@ -6,7 +6,8 @@
       <div class="row">
         <div class="card">
           <div class="card-header">
-            Learning Object Tree
+            <icon name="question-circle"></icon>
+            Learning Objects Tree
           </div>
           <div class="card-block">
             <learning-object-tree></learning-object-tree>
@@ -16,6 +17,7 @@
       <div class="row">
         <div class="card">
           <div class="card-header">
+            <icon name="filter"></icon>
             Student Grades on Learning Obejcts
           </div>
           <div class="card-block">

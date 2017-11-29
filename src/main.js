@@ -4,13 +4,23 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 
+// import boostrap-vue module
+// https://bootstrap-vue.js.org/docs/
 import BootstrapVue from 'bootstrap-vue'
 Vue.use(BootstrapVue);
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 // import VueResource module
 import VueResource from 'vue-resource'
 Vue.use(VueResource);
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+// import vue awesome
+import 'vue-awesome/icons'
+/* Register component with one of 2 methods */
+import Icon from 'vue-awesome/components/Icon'
+// globally (in your main .js file)
+Vue.component('icon', Icon)
 
 // not to use Vuetify because of a bug
 // import Vuetify from 'vuetify'

@@ -1,7 +1,14 @@
 <template>
-  <div>
-    <router-view/>
-  </div>
+  <main>
+    <nav class="navbar navbar-dark bg-dark">
+      <a class="navbar-brand" href="">
+        Study Plan
+      </a>
+    </nav>
+    <div>
+      <router-view/>
+    </div>
+  </main>
 </template>
 
 <script>

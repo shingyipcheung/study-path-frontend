@@ -1,22 +1,22 @@
 <!-- adapted from https://bl.ocks.org/syntagmatic/05a5b0897a48890133beb59c815bd953 -->
 
 <template>
-<div id="root">
+<div class="student-parallel">
   <div id="graph"></div>
   <div id="student-details" class="student-details">
     <div>
-      <h5>
-        Total students selected: {{selected_students.length}}
-      </h5>
+      <icon name="list-ol"></icon>
+      <span> Total students selected: </span>
+      <b-badge pill variant="light">{{selected_students.length}}</b-badge>
     </div>
 
     <div>
-      <b-table hover striped small :per-page="4"
+      <b-table hover striped small :per-page="rows_per_page"
       :items="selected_students" :fields="fields" :current-page="current_page">
       </b-table>
       <b-pagination size="md" align="center"
       :total-rows="selected_students.length"
-      v-model="current_page" :per-page="4">
+      v-model="current_page" :per-page="rows_per_page">
       </b-pagination>
       <!-- <div v-for="student in selected_students" class="student">
         <p>
@@ -35,7 +35,7 @@
 <script>
 import * as d3 from 'd3';
 // import the dependency
-import renderQueue from './render_queue.js';
+import renderQueue from '../assets/js/render_queue.js';
 
 export default {
   name: "student-parallel",
@@ -75,7 +75,7 @@ export default {
         {key:"method", sortable:true},
         {key:"recursion", sortable:true},
       ],
-      current_page: 1
+      current_page: 1, rows_per_page: 10
     }
   },
   mounted() {
@@ -107,7 +107,8 @@ export default {
     start_draw() {
       // get graph DOM to set width later
       var that = this;
-      var graph = d3.select("#graph").node();
+      let el = d3.select(this.$el);
+      var graph = el.select("#graph").node();
           // console.log(graph.getBoundingClientRect().width);
 
       var margin = {top: 66, right: 50, bottom: 20, left: 50},
@@ -177,7 +178,7 @@ export default {
 
       var yAxis = d3.axisLeft();
 
-      var container = d3.select("#graph").append("div")
+      var container = el.select("#graph").append("div")
           .attr("class", "parcoords")
           .style("width", width + margin.left + margin.right + "px")
           .style("height", height + margin.top + margin.bottom + "px");
@@ -202,7 +203,7 @@ export default {
       ctx.lineWidth = 1.5;
       ctx.scale(devicePixelRatio, devicePixelRatio);
 
-      // var output = d3.select("#graph").append("pre");
+      // var output = el.select("#graph").append("pre");
 
       var axes = svg.selectAll(".axis")
           .data(dimensions)
@@ -266,7 +267,7 @@ export default {
           .attr("width", 16);
 
       // show the food group name, not used in our case.
-      // d3.selectAll(".axis.food_group .tick text")
+      // el.selectAll(".axis.food_group .tick text")
       //   .style("fill", color);
 
       // output.text(d3.tsvFormat(data.slice(0,24)));
@@ -384,115 +385,107 @@ export default {
         render(selected);
         that.selected_students = selected;
         // console.log(this.selected_students);
-
         // output.text(d3.tsvFormat(selected.slice(0,24)));
       }
-
-      return;
     },
-
-
   },
 }
 </script>
 
-<style scoped>
-#root {
+<style lang="scss" scoped>
+#student-parallel {
   width: 100%;
 }
 
 #student-details {
   width: 100%;
-  height: 300px;
+  height: 600px;
   /*margin: 6px 12px;
   tab-size: 40;
   font-size: 10px;*/
   overflow: hidden;
-}
-
-#student-details .overflow-static {
-  height: 50px;
-}
-
-#student-details .overflow_dynamic {
-  height: 250px;
-  overflow: auto;
+  .overflow-static {
+    height: 50px;
+  }
+  .overflow_dynamic {
+    height: 250px;
+    overflow: auto;
+  }
 }
 
 .student {
   margin-left: 40px;
-}
-
-.student p span {
-  font-size: 0.7rem
+  p span {
+    font-size: 0.7rem;
+  }
 }
 </style>
 
-<style>
-
+<style lang="scss">
 .parcoords {
   display: block;
+  svg {
+    font: 10px sans-serif;
+    position: absolute;
+  }
+  canvas {
+    font: 10px sans-serif;
+    position: absolute;
+    opacity: 0.9;
+    pointer-events: none;
+  }
 }
 
-.parcoords svg,
-.parcoords canvas {
-  font: 10px sans-serif;
-  position: absolute;
-}
-
-.parcoords canvas {
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-.axis .title {
-  font-size: 15px;
-  transform: rotate(-21deg) translate(-5px,-6px);
-  fill: #222;
-}
-
-.axis line,
-.axis path {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1px;
-}
-
-.axis .tick text {
-  fill: #222;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.axis.manufac_name .tick text,
-.axis.food_group .tick text {
-  opacity: 1;
-}
-
-.axis:hover line,
-.axis:hover path,
-.axis.active line,
-.axis.active path {
-  fill: none;
-  stroke: #222;
-  stroke-width: 1px;
-}
-
-.axis:hover .title {
-  font-weight: bold;
-}
-
-.axis:hover .tick text {
-  opacity: 1;
-}
-
-.axis.active .title {
-  font-weight: bold;
-}
-
-.axis.active .tick text {
-  opacity: 1;
-  font-weight: bold;
+.axis {
+  .title {
+    font-size: 15px;
+    transform: rotate(-21deg) translate(-5px, -6px);
+    fill: #222;
+  }
+  line, path {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1px;
+  }
+  .tick text {
+    fill: #222;
+    opacity: 0;
+    pointer-events: none;
+  }
+  &.manufac_name .tick text, &.food_group .tick text {
+    opacity: 1;
+  }
+  &:hover {
+    line, path {
+      fill: none;
+      stroke: #222;
+      stroke-width: 1px;
+    }
+  }
+  &.active {
+    line, path {
+      fill: none;
+      stroke: #222;
+      stroke-width: 1px;
+    }
+  }
+  &:hover {
+    .title {
+      font-weight: bold;
+    }
+    .tick text {
+      opacity: 1;
+    }
+  }
+  &.active {
+    .title {
+      font-weight: bold;
+    }
+    .tick text {
+      opacity: 1;
+      font-weight: bold;
+    }
+  }
 }
 
 .brush .extent {
@@ -500,5 +493,4 @@ export default {
   stroke: #fff;
   stroke-width: 1px;
 }
-
 </style>
