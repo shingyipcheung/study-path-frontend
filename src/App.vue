@@ -12,8 +12,19 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
-  name: 'app'
+  name: 'app',
+  methods: {
+    ...mapActions([
+      'fetchConcepts', 'fetchConceptEdges', 'fetchStudentScores'
+    ]),
+  },
+  async created () {
+      // https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
+    [await this.fetchConcepts(), await this.fetchConceptEdges(), await this.fetchStudentScores()];
+  }
 }
 </script>
 

@@ -9,63 +9,68 @@
 import * as d3 from 'd3';
 import "d3-selection-multi";
 import _ from 'lodash';
-import axios from 'axios';
+
+import { mapGetters } from 'vuex'
 
 export default {
   name: "learning-object-tree",
   data() {
     return {
+      //      width: 1100,
       nodes: [],
       links: [],
-      //      width: 1100,
       height: 300,
     }
   },
-  mounted() {
-    axios.all([
-        axios.get("http://127.0.0.1:8000/study_plan/concepts/"),
-        axios.get("http://127.0.0.1:8000/study_plan/graph/")
-      ])
-      .then(axios.spread((conceptsRes, edgesRes) => {
-        // nodes
-        this.nodes = conceptsRes.data;
+  computed: {
+    ...mapGetters({
+      concepts: 'allConcepts',
+      edges: 'allConceptEdges',
+    }),
+  },
+  watch: {
+    // https://forum-archive.vuejs.org/topic/5194/advice-on-separating-d3-and-vue-vuex-data/3
+    edges()
+    {
+      // edges may initially empty
+      if (this.edges.length === 0 || this.concepts.length === 0)
+        return;
+      this.nodes = _.cloneDeep(this.concepts);
+      this.links = _.cloneDeep(this.edges);
+      // get width and height
+      var root = d3.select(this.$el).node();
+      console.log(root);
+      this.width = root.getBoundingClientRect().width;
+      console.log(this.width);
 
-        // get width and height
-        var root = d3.select(this.$el).node();
-        console.log(root);
-        this.width = root.getBoundingClientRect().width;
-        console.log(this.width);
+      // set the x scale to set the position of the nodes to the corresponding position of paracoord
+      var margin = {
+        top: 66,
+        right: 40,
+        bottom: 20,
+        left: 50
+      }
+      let x_scale = d3.scaleLinear()
+        .domain([0, this.nodes.length - 1])
+        .range([0 + margin.left, this.width - margin.right]);
 
-        // set the x scale to set the position of the nodes to the corresponding position of paracoord
-        var margin = {
-          top: 66,
-          right: 40,
-          bottom: 20,
-          left: 50
-        }
-        let x_scale = d3.scaleLinear()
-          .domain([0, this.nodes.length - 1])
-          .range([0 + margin.left, this.width - margin.right]);
+      this.nodes.forEach((node, i) => {
+        this.nodes[i] = {
+          name: node,
+          fx: x_scale(i),
+          y: this.height / 2 // this line doesn't work here.
+        };
+      });
 
-        this.nodes.forEach((node, i) => {
-          this.nodes[i] = {
-            name: node,
-            fx: x_scale(i),
-            y: this.height / 2 // this line doesn't work here.
-          };
-        });
+      // links
+      this.links.forEach((link) => {
+        link["source"] = _.find(this.nodes, d => d.name === link['source']);
+        link['target'] = _.find(this.nodes, d => d.name === link['target']);
+      });
 
-        // links
-        this.links = edgesRes.data;
-        this.links.forEach((link) => {
-          link["source"] = _.find(this.nodes, d => d.name === link['source']);
-          link['target'] = _.find(this.nodes, d => d.name === link['target']);
-        });
-
-        // start to draw, main entry
-        this.start_draw();
-      }))
-      .catch(error => console.log(error));
+      // start to draw, main entry
+      this.start_draw();
+    }
   },
   methods: {
     // main entry for the drawing function
