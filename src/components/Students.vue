@@ -3,6 +3,7 @@
 <template>
   <div class="root">
     <div class="container">
+
       <div class="row">
         <div class="card">
           <div class="card-header">
@@ -14,6 +15,7 @@
           </div>
         </div>
       </div>
+
       <div class="row">
         <div class="card">
           <div class="card-header">
@@ -25,31 +27,46 @@
           </div>
         </div>
       </div>
+
+      <div class="row">
+        <div class="card">
+          <div class="card-header">
+            <icon name="list-ol"></icon>
+            Filtered Students
+          </div>
+          <div class="card-block">
+            <score-table></score-table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 
 <script>
-import StudentParallel from './StudentParallel';
-import LearningObjectTree from './LearningObjectTree';
+  import StudentParallel from './StudentParallel';
+  import LearningObjectTree from './LearningObjectTree';
+  import ScoreTable from "./ScoreTable.vue";
 
-export default {
-  name: "students",
-  components: {
-    StudentParallel,
-    LearningObjectTree,
-  },
-  data () {
-    return {};
+  export default {
+    name: "students",
+    components: {
+      ScoreTable,
+      StudentParallel,
+      LearningObjectTree,
+    },
+    data() {
+      return {};
+    }
   }
-}
 </script>
 
 <style scoped>
-.card {
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
+  .card {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
 </style>
