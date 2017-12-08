@@ -112,7 +112,8 @@
             return d.name;
           }).distance(100).strength(1))
           .force("charge", d3.forceManyBody())
-          .alphaTarget(1)
+          .alphaTarget(0.5)
+          .force("center", d3.forceCenter(0, 180));
 
         var links = this.links;
         var nodes = this.nodes;

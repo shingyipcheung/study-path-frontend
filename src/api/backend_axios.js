@@ -12,4 +12,7 @@ export default {
   fetchStudentScores () {
     return axios.get(`${baseUrl}/study_plan/concept_score/all/`)
   },
+  getRecommendation(student_id) {
+    return axios.get(`${baseUrl}/study_plan/recommendation/${student_id}/`)
+  }
 }

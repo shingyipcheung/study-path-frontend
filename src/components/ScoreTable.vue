@@ -1,72 +1,135 @@
 <template>
-  <div id="student-details" class="student-details">
+  <b-container fluid>
     <div>
-      <span> Total students selected: </span>
-      <b-badge pill variant="light">{{selected_students.length}}</b-badge>
+      <span> Total students filtered: </span>
+      <b-badge pill variant="light">{{filtered_students.length}}</b-badge>
+      <b-badge variant="danger">{{selectedStudent.size}}</b-badge>
     </div>
 
-    <div>
-      <b-table hover striped small :per-page="rows_per_page"
-               :items="selected_students" :fields="fields" :current-page="current_page">
+      <b-table hover responsive small show-empty fixed :per-page="rows_per_page" :height="height"
+               :items="filtered_students" :fields="fields" :current-page="current_page" @row-clicked="info">
+
+        <!--show details-->
+        <template slot="show" slot-scope="row">
+          <!-- we use @click.stop here to prevent emitting of a 'row-clicked' event  -->
+          <b-form-checkbox @click.native.stop
+                           @change="toggleSelected(row.item.student_id)"
+                           :checked="selectedStudent.has(row.item.student_id)">
+          </b-form-checkbox>
+        </template>
+
+        <template slot="HEAD_show" slot-scope="row">
+          <b-form-checkbox @click.native.stop
+                           @change="toggleAll"
+                           :indeterminate="indeterminate"
+                           v-model="allSelected">
+          </b-form-checkbox>
+        </template>
+
       </b-table>
+      <!-- Info modal -->
+      <b-modal id="modalInfo" @hide="resetModal" :title="modalInfo.title" ok-only>
+        <pre>{{ modalInfo.content }}</pre>
+      </b-modal>
+
       <b-pagination size="md" align="center"
-                    :total-rows="selected_students.length"
+                    :total-rows="filtered_students.length"
                     v-model="current_page" :per-page="rows_per_page">
       </b-pagination>
-      <!-- <div v-for="student in selected_students" class="student">
-        <p>
-          ID: {{student.student_id}}
-          <span v-for="key in dimensions">
-            {{key.key}}:
-            {{student[key.key] ? student[key.key] : 0}}
-          </span>
-        </p>
-      </div> -->
-    </div>
-  </div>
+    </b-container>
 </template>
 
 <script>
   import {mapState} from 'vuex'
   import _ from 'lodash';
+  import backend from '@/api/backend_axios'
+
   export default {
     name: "ScoreTable",
     data() {
       return {
-//        // data required for the table and pagination
-//        fields: [
-//          {key: "student_id", sortable: true},
-//          {key: "primitive_type", sortable: true},
-//          {key: "variable", sortable: true},
-//          {key: "operator", sortable: true},
-//          {key: "array", sortable: true},
-//          {key: "nd_array", sortable: true},
-//          {key: "string", sortable: true},
-//          {key: "branch", sortable: true},
-//          {key: "loop", sortable: true},
-//          {key: "object_class", sortable: true},
-//          {key: "instance_variable", sortable: true},
-//          {key: "method", sortable: true},
-//          {key: "recursion", sortable: true},
-//        ],
-        fields: [],
-        current_page: 1, rows_per_page: 10
+        current_page: 1, rows_per_page: 10,
+        height: 400,
+        modalInfo: { title: '', content: '' },
+        allSelected: false,
+        indeterminate: false,
+        selectedStudent: new Set()
       }
     },
     computed: {
       ...mapState({
-        selected_students: state => state.learning_objects.selected_students,
-      })
-    },
-      // data required for the table and pagination
-    watch: {
-     selected_students() {
-        if (this.selected_students.length > 0)
+        filtered_students: state => state.learning_objects.filtered_students,
+      }),
+      filtered_student_id() {
+        return _.map(this.filtered_students, 'student_id')
+      },
+      fields() {
+//        fields: [
+//          {key: "student_id", sortable: true}...
+//        ],
+        if (this.filtered_students.length > 0)
         {
-          let keys = this.selected_students.keys();
-          this.fields = _.map(keys, key => ({'key': key, 'sortable': true}))
+          let keys = _.keys(this.filtered_students[0])
+          let fields =  _.map(keys, key => ({'key': key, 'sortable': true}))
+          fields.unshift('show')
+          return fields
         }
       }
+    },
+    watch: {
+      filtered_students() {
+        this.selectedStudent = new Set()
+      },
+      selectedStudent() {
+        this.updateState()
+      }
+    },
+    methods: {
+      toggleAll() {
+        this.allSelected = !this.allSelected
+        if (this.allSelected)
+          this.selectedStudent = new Set(this.filtered_student_id)
+        else
+          this.selectedStudent = new Set()
+      },
+      updateState()
+      {
+        if (this.selectedStudent.size === 0) {
+          this.indeterminate = false
+          this.allSelected = false
+        }
+        else if (this.selectedStudent.size === this.filtered_students.length)
+        {
+          this.indeterminate = false
+          this.allSelected = true
+        }
+        else {
+          this.indeterminate = true
+          this.allSelected = false
+        }
+      },
+      toggleSelected(student_id) {
+        if (this.selectedStudent.has(student_id))
+          this.selectedStudent.delete(student_id)
+        else
+          this.selectedStudent.add(student_id)
+        this.updateState()
+        this.$forceUpdate()
+      },
+      async getRecommendation(student_id) {
+        const { data } = await backend.getRecommendation(student_id)
+        return data
+      },
+      async info(item, index, event) {
+        this.modalInfo.title = `student id: ${item.student_id}`
+//        this.modalInfo.content = JSON.stringify(item, null, 2)
+        this.modalInfo.content = await this.getRecommendation(item.student_id)
+        this.$root.$emit('bv::show::modal', 'modalInfo', event)
+      },
+      resetModal() {
+        this.modalInfo.title = ''
+        this.modalInfo.content = ''
+      },
     }
   }
 </script>

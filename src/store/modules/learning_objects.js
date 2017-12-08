@@ -6,7 +6,7 @@ const state = {
   concepts: [],
   concept_edges: [],
   student_concept_scores: [],
-  selected_students: []
+  filtered_students: []
 }
 
 // getters
@@ -14,7 +14,7 @@ const getters = {
   allConcepts: state => state.concepts,
   allConceptEdges: state => state.concept_edges,
   allStudentScores: state => state.student_concept_scores,
-  allSelectedStudents: state => state.selectedStudents
+  allFilteredStudents: state => state.filteredStudents
 }
 
 // actions
@@ -56,8 +56,8 @@ const mutations = {
   [types.SET_STUDENT_SCORES] (state, scores) {
     state.student_concept_scores = scores
   },
-  [types.SET_SELECTED_STUDENTS] (state, students) {
-    state.selected_students = students
+  [types.SET_FILTERED_STUDENTS] (state, students) {
+    state.filtered_students = students
   },
 }
 

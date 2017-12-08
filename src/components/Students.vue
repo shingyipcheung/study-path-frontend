@@ -8,7 +8,7 @@
         <div class="card">
           <div class="card-header">
             <icon name="question-circle"></icon>
-            Learning Objects Tree
+            Learning Object Dependency Graph
           </div>
           <div class="card-block">
             <learning-object-tree></learning-object-tree>
@@ -20,7 +20,7 @@
         <div class="card">
           <div class="card-header">
             <icon name="filter"></icon>
-            Student Grades on Learning Obejcts
+            Student Grades of Learning Objects
           </div>
           <div class="card-block">
             <student-parallel></student-parallel>
@@ -48,7 +48,7 @@
 <script>
   import StudentParallel from './StudentParallel';
   import LearningObjectTree from './LearningObjectTree';
-  import ScoreTable from "./ScoreTable.vue";
+  import ScoreTable from "./ScoreTable";
 
   export default {
     name: "students",

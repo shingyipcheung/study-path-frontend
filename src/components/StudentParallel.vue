@@ -32,23 +32,21 @@
     },
     watch: {
       students() {
-        this.students.forEach(d => {
-          for (const key of Object.keys(d)) {
-            if (key != "student_id") {
-              d[key] = d[key].toFixed(2);
-            }
-          }
-        })
+//        this.students.forEach(d => {
+//          for (const key of Object.keys(d)) {
+//            if (key != "student_id") {
+//              d[key] = d[key].toFixed(2);
+//            }
+//          }
+//        })
         // set the default selection to all students
-        this.setSelectedStudents(_.cloneDeep(this.students));
-        // console.log(this.students);
+        this.setFilteredStudents(_.cloneDeep(this.students));
         this.start_draw();
-        //console.log(this.students);
       }
     },
     methods: {
       ...mapMutations({
-        setSelectedStudents: 'SET_SELECTED_STUDENTS'
+        setFilteredStudents: 'SET_FILTERED_STUDENTS'
       }),
       start_draw() {
         // get graph DOM to set width later
@@ -65,7 +63,7 @@
         var devicePixelRatio = window.devicePixelRatio || 1;
 
         var color = d3.scaleOrdinal()
-          .range(["#5DA5B3"]);
+          .range(["#5cd6ff"]);
 
         // only the Number will be used
         var types = {
@@ -104,20 +102,8 @@
           }
         };
 
-
-        // get dimensions from data.
-        // var dimensions = d3.keys(this.students[0]).filter(d => {
-        //   // ignore the student_id
-        //   if (d == "student_id") {
-        //     return false;
-        //   }else {
-        //     return true;
-        //   }
-        // })
-
         // self define a reasonable order for dimensions first
-        var dimensions = this.dimensions;
-
+        let dimensions = this.dimensions;
 
         // set to required dimension form.
         for (var i = 0; i < dimensions.length; i++) {
@@ -178,15 +164,14 @@
 
         // set scale domain;
         dimensions.forEach(d => {
-          // console.log(data);
-          // console.log(d.key);
-          // console.log(d3.extent(data, p => p[d.key]));
           d.scale.domain(d3.extent(data, p => p[d.key]));
         })
 
+        // preprocessing
         data.forEach(function (d) {
+          // 0 will be converted to null
           dimensions.forEach(function (p) {
-            d[p.key] = !d[p.key] ? null : p.type.coerce(d[p.key]);
+            d[p.key] = (d[p.key] < 0) ? null : p.type.coerce(d[p.key]);
           });
 
           // truncate long text strings to fit in data table
@@ -222,7 +207,7 @@
             d3.select(this).call(d.brush = d3.brushY()
               .extent([[-10, 0], [10, height]])
               .on("start", brushstart)
-              .on("brush", brush)
+              .on("brush", _.debounce(brush, 10))
               .on("end", brush)
             )
           })
@@ -242,11 +227,8 @@
         function project(d) {
           return dimensions.map(function (p, i) {
             // check if data element has property and contains a value
-            if (
-              !(p.key in d) ||
-              d[p.key] === null
-            ) return null;
-
+            if (!(p.key in d) || d[p.key] === null)
+              return null;
             return [xscale(i), p.scale(d[p.key])];
           });
         };
@@ -306,7 +288,7 @@
               });
             });
 
-          var selected = data.filter(function (d) {
+          var filtered = data.filter(function (d) {
             if (actives.every(function (active) {
                 var dim = active.dimension;
                 // test if point is within extents for each active brush
@@ -345,11 +327,11 @@
           */
 
           ctx.clearRect(0, 0, width, height);
-          ctx.globalAlpha = d3.min([0.85 / Math.pow(selected.length, 0.3), 1]);
-          render(selected);
-          that.setSelectedStudents(selected);
-          // console.log(this.selected_students);
-          // output.text(d3.tsvFormat(selected.slice(0,24)));
+          ctx.globalAlpha = d3.min([0.85 / Math.pow(filtered.length, 0.3), 1]);
+          render(filtered);
+          that.setFilteredStudents(filtered);
+          // console.log(this.filtered_students);
+          // output.text(d3.tsvFormat(filtered.slice(0,24)));
         }
       },
     },
@@ -409,7 +391,7 @@
     line, path {
       fill: none;
       stroke: #ccc;
-      stroke-width: 1px;
+      stroke-width: 1.5px;
     }
     .tick text {
       fill: #222;
