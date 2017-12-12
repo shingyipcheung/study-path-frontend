@@ -29,7 +29,19 @@
       </b-table>
       <!-- Info modal -->
       <b-modal id="modalInfo" @hide="resetModal" :title="modalInfo.title" ok-only>
-        <pre>{{ modalInfo.content }}</pre>
+
+        <b-card title="Scores">
+          <b-table small bordered hover :fields="modal_fields" :items="modalInfo.content.table"></b-table>
+        </b-card>
+
+
+        <b-card title="Suggested learning path" v-if="modalInfo.content && modalInfo.content.path.length">
+          <span v-for="(node, index) in modalInfo.content.path">
+            {{node}}
+            <icon v-if="index != modalInfo.content.path.length - 1" name="arrow-right" scale="0.8"></icon>
+          </span>
+        </b-card>
+
       </b-modal>
 
       <b-pagination size="md" align="center"
@@ -53,7 +65,12 @@
         modalInfo: { title: '', content: '' },
         allSelected: false,
         indeterminate: false,
-        selectedStudent: new Set()
+        selectedStudent: new Set(),
+        modal_fields: [
+          {key: "concept", sortable:true},
+          {key: "grade", sortable:true},
+          {key: "mean", sortable:true},
+        ]
       }
     },
     computed: {

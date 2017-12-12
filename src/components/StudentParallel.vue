@@ -207,7 +207,7 @@
             d3.select(this).call(d.brush = d3.brushY()
               .extent([[-10, 0], [10, height]])
               .on("start", brushstart)
-              .on("brush", _.debounce(brush, 10))
+              .on("brush", brush)
               .on("end", brush)
             )
           })
