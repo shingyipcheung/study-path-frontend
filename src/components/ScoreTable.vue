@@ -28,7 +28,7 @@
 
       </b-table>
       <!-- Info modal -->
-      <b-modal id="modalInfo" @hide="resetModal" :title="modalInfo.title" ok-only>
+      <b-modal centered id="modalInfo" @hide="resetModal" :title="modalInfo.title" ok-only>
 
         <b-card title="Scores">
           <b-table small bordered hover :fields="modal_fields" :items="modalInfo.content.table"></b-table>
@@ -36,10 +36,14 @@
 
 
         <b-card title="Suggested learning path" v-if="modalInfo.content && modalInfo.content.path.length">
+
           <span v-for="(node, index) in modalInfo.content.path">
             {{node}}
             <icon v-if="index != modalInfo.content.path.length - 1" name="arrow-right" scale="0.8"></icon>
           </span>
+
+          <count-down-alert></count-down-alert>
+
         </b-card>
 
       </b-modal>
@@ -55,8 +59,10 @@
   import {mapState} from 'vuex'
   import _ from 'lodash';
   import backend from '@/api/backend_axios'
+  import CountDownAlert from "./CountDownAlert";
 
   export default {
+    components: {CountDownAlert},
     name: "ScoreTable",
     data() {
       return {
@@ -70,7 +76,7 @@
           {key: "concept", sortable:true},
           {key: "grade", sortable:true},
           {key: "mean", sortable:true},
-        ]
+        ],
       }
     },
     computed: {

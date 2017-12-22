@@ -169,10 +169,10 @@
 
         // preprocessing
         data.forEach(function (d) {
-          // 0 will be converted to null
-          dimensions.forEach(function (p) {
-            d[p.key] = (d[p.key] < 0) ? null : p.type.coerce(d[p.key]);
-          });
+          // < 0 will be converted to null
+          // dimensions.forEach(function (p) {
+          //   d[p.key] = (d[p.key] < 0) ? null : p.type.coerce(d[p.key]);
+          // });
 
           // truncate long text strings to fit in data table
           for (var key in d) {

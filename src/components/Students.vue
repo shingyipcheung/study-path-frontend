@@ -39,16 +39,6 @@
           </div>
         </div>
       </div>
-
-
-      <!--<div>-->
-        <!--<b-embed type="video"-->
-                 <!--aspect="16by9"-->
-                 <!--src="http://w02.hkvu.hk/edX/COMP102x/download/COMP102x-L2-T2.1-Identifiers.mp4"-->
-                 <!--allowfullscreen-->
-        <!--&gt;</b-embed>-->
-      <!--</div>-->
-
     </div>
   </div>
 </template>

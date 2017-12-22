@@ -39,35 +39,26 @@
         this.links = _.cloneDeep(this.edges);
         // get width and height
         var root = d3.select(this.$el).node();
-        console.log(root);
         this.width = root.getBoundingClientRect().width;
-        console.log(this.width);
 
         // set the x scale to set the position of the nodes to the corresponding position of paracoord
         var margin = {
           top: 66,
           right: 40,
           bottom: 20,
-          left: 50
+          left: 60
         }
-        let x_scale = d3.scaleLinear()
+        let xScale = d3.scaleLinear()
           .domain([0, this.nodes.length - 1])
           .range([0 + margin.left, this.width - margin.right]);
 
         this.nodes.forEach((node, i) => {
           this.nodes[i] = {
             name: node,
-            fx: x_scale(i),
-            y: this.height / 2 // this line doesn't work here.
+            // the node's fixed x-position
+            fx: xScale(i),
           };
         });
-
-        // links
-        this.links.forEach((link) => {
-          link["source"] = _.find(this.nodes, d => d.name === link['source']);
-          link['target'] = _.find(this.nodes, d => d.name === link['target']);
-        });
-
         // start to draw, main entry
         this.start_draw();
       }
@@ -81,7 +72,7 @@
         // set the color scale for the risk ratio labels
         let label_color = d3.scaleLinear()
           .domain(d3.extent(this.links, d => d.value))
-          .range([d3.rgb(211, 211, 211), d3.rgb(0, 0, 0)]);
+          .range([d3.rgb(211, 211, 211), d3.rgb(211, 211, 211)]);
 
         var svg = d3.select(this.$el).select("svg")
             .attr("width", this.width)
@@ -107,13 +98,17 @@
             'fill': '#999'
           })
 
+        // collide radius to prevent overlapping
+        let radius = (this.width - 40) / this.nodes.length;
         var simulation = d3.forceSimulation()
-          .force("link", d3.forceLink().id(function (d) {
-            return d.name;
-          }).distance(100).strength(1))
+          .force("link", d3.forceLink()
+            .id(d => d.name)
+            .distance(100)
+            .strength(1))
           .force("charge", d3.forceManyBody())
           .alphaTarget(0.5)
-          .force("center", d3.forceCenter(0, 180));
+          .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+          .force("collide", d3.forceCollide(radius / 2))
 
         var links = this.links;
         var nodes = this.nodes;
@@ -204,16 +199,7 @@
             .links(links);
         }
 
-        // setting y not working in the upper there.
-        var initialized = false;
-
         function ticked() {
-          if (!initialized) {
-            that.nodes.forEach(node => {
-              node.y = that.height / 2;
-            })
-            initialized = true;
-          }
           link.attr("x1", function (d) {
             return d.source.x;
           })
@@ -251,7 +237,7 @@
         // fix the y coord to enforce the correspondence of node and parallel coordinates
         function dragstarted(d) {
           if (!d3.event.active)
-            simulation.alphaTarget(0.3).restart();
+            simulation.alphaTarget(0.5).restart();
           // d.fx = d.x;
           d.fy = d.y;
         }
