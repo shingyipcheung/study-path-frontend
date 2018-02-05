@@ -4,6 +4,7 @@ import backend from '@/api/backend_axios'
 // initial state
 const state = {
   concepts: [],
+  concept_means: {},
   concept_edges: [],
   student_concept_scores: [],
   filtered_students: []
@@ -23,6 +24,14 @@ const actions = {
     try {
       const { data } = await backend.fetchConcepts()
       commit(types.SET_CONCEPTS, data)
+    } catch(e) {
+      console.log(e)
+    }
+  },
+  async fetchConceptMeans ({ commit }) {
+    try {
+      const { data } = await backend.fetchConceptMeans()
+      commit(types.SET_CONCEPT_MEANS, data)
     } catch(e) {
       console.log(e)
     }
@@ -49,6 +58,9 @@ const actions = {
 const mutations = {
   [types.SET_CONCEPTS] (state, concepts) {
     state.concepts = concepts
+  },
+  [types.SET_CONCEPT_MEANS] (state, means) {
+    state.concept_means = means
   },
   [types.SET_CONCEPT_EDGES] (state, edges) {
     state.concept_edges = edges

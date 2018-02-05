@@ -8,10 +8,12 @@
 
 <script>
   import * as d3 from 'd3';
+  d3.tip = require("d3-tip");
   // import the dependency
   import renderQueue from '../assets/js/render_queue.js';
   import {mapState, mapMutations} from 'vuex'
   import _ from 'lodash';
+  import backend from '@/api/backend_axios'
 
   export default {
     name: "student-parallel",
@@ -21,6 +23,7 @@
     computed: {
       ...mapState({
         concepts: state => state.learning_objects.concepts,
+        concept_means: state => state.learning_objects.concept_means,
         student_concept_scores: state => state.learning_objects.student_concept_scores,
       }),
       dimensions() {
@@ -32,13 +35,6 @@
     },
     watch: {
       students() {
-//        this.students.forEach(d => {
-//          for (const key of Object.keys(d)) {
-//            if (key != "student_id") {
-//              d[key] = d[key].toFixed(2);
-//            }
-//          }
-//        })
         // set the default selection to all students
         this.setFilteredStudents(_.cloneDeep(this.students));
         this.start_draw();
@@ -62,8 +58,8 @@
 
         var devicePixelRatio = window.devicePixelRatio || 1;
 
-        var color = d3.scaleOrdinal()
-          .range(["#5cd6ff"]);
+        // var color = d3.scaleOrdinal()
+        //   .range(["#5cd6ff"]);
 
         // only the Number will be used
         var types = {
@@ -149,6 +145,20 @@
 
         // var output = el.select("#graph").append("pre");
 
+        var tip = d3.tip()
+          .attr('class', 'd3-tip')
+          .offset([-10, 0])
+          .html(function(d) {
+            let mean = that.concept_means[d.key]
+            return "<strong>Avg. score: </strong> <span style='color:greenyellow'>" + mean + "</span>";
+          })
+          .direction('w')
+          .offset(function(d) {
+            return [d.scale(that.concept_means[d.key] + 0.5) - 2, 0]
+          })
+
+        svg.call(tip);
+
         var axes = svg.selectAll(".axis")
           .data(dimensions)
           .enter().append("g")
@@ -157,7 +167,7 @@
           })
           .attr("transform", function (d, i) {
             return "translate(" + xscale(i) + ")";
-          });
+          })
 
         // define the students data
         var data = this.students;
@@ -197,7 +207,7 @@
           .attr("class", "title")
           .attr("text-anchor", "start")
           .text(function (d) {
-            return "description" in d ? d.description : d.key;
+            return d.key;
           });
 
         // Add and store a brush for each axis.
@@ -213,7 +223,12 @@
           })
           .selectAll("rect")
           .attr("x", -8)
-          .attr("width", 16);
+          .attr("width", 16)
+          .on('mouseover', function(d) {
+            if (d.type === 'overlay')
+              tip.show(d3.select(this.parentNode).datum())
+          })
+          .on('mouseout', tip.hide)
 
         // show the food group name, not used in our case.
         // el.selectAll(".axis.food_group .tick text")
@@ -234,7 +249,7 @@
         };
 
         function draw(d) {
-          ctx.strokeStyle = color(d.food_group);
+          ctx.strokeStyle = "#5cd6ff"// color(d.food_group);
           ctx.beginPath();
           var coords = project(d);
           coords.forEach(function (p, i) {
@@ -298,40 +313,10 @@
             }
           });
 
-          // show ticks for active brush dimensions
-          // and filter ticks to only those within brush extents
-          /*
-          svg.selectAll(".axis")
-              .filter(function(d) {
-                return actives.indexOf(d) > -1 ? true : false;
-              })
-              .classed("active", true)
-              .each(function(dimension, i) {
-                var extent = extents[i];
-                d3.select(this)
-                  .selectAll(".tick text")
-                  .style("display", function(d) {
-                    var value = dimension.type.coerce(d);
-                    return dimension.type.within(value, extent, dimension) ? null : "none";
-                  });
-              });
-
-          // reset dimensions without active brushes
-          svg.selectAll(".axis")
-              .filter(function(d) {
-                return actives.indexOf(d) > -1 ? false : true;
-              })
-              .classed("active", false)
-              .selectAll(".tick text")
-                .style("display", null);
-          */
-
           ctx.clearRect(0, 0, width, height);
           ctx.globalAlpha = d3.min([0.85 / Math.pow(filtered.length, 0.3), 1]);
           render(filtered);
           that.setFilteredStudents(filtered);
-          // console.log(this.filtered_students);
-          // output.text(d3.tsvFormat(filtered.slice(0,24)));
         }
       },
     },
@@ -384,7 +369,7 @@
 
   .axis {
     .title {
-      font-size: 15px;
+      font-size: 13px;
       transform: rotate(-21deg) translate(-5px, -6px);
       fill: #222;
     }
@@ -397,9 +382,6 @@
       fill: #222;
       opacity: 0;
       pointer-events: none;
-    }
-    &.manufac_name .tick text, &.food_group .tick text {
-      opacity: 1;
     }
     &:hover {
       line, path {
@@ -438,5 +420,35 @@
     fill-opacity: .3;
     stroke: #fff;
     stroke-width: 1px;
+  }
+
+  .d3-tip {
+    line-height: 1;
+    font-size: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border-radius: 2px;
+    pointer-events: none;
+
+    /* Creates a small triangle extender for the tooltip */
+    &:after {
+      box-sizing: border-box;
+      display: inline;
+      font-size: 10px;
+      width: 100%;
+      line-height: 1;
+      color: rgba(0, 0, 0, 0.5);
+      position: absolute;
+      pointer-events: none;
+    }
+
+    /* Westward tooltips */
+    &.w:after {
+      content: "\25B6";
+      margin: -4px 0 0 0;
+      top: 50%;
+      left: 100%;
+    }
   }
 </style>

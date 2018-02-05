@@ -20,7 +20,7 @@
         <div class="card">
           <div class="card-header">
             <icon name="filter"></icon>
-            Student Grades of Learning Objects
+            Learning Object Performance of Students
           </div>
           <div class="card-block">
             <student-parallel></student-parallel>
@@ -32,7 +32,7 @@
         <div class="card">
           <div class="card-header">
             <icon name="list-ol"></icon>
-            Filtered Students
+            Selected Students
           </div>
           <div class="card-block">
             <score-table></score-table>

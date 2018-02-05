@@ -18,7 +18,7 @@
     <b-btn class="mt-3"
            variant="info"
            v-if="dismissCountDown == 0 && !completed"
-           block @click="dismissCountDown = countDownSec">Send the Suggested Path
+           block @click="dismissCountDown = countDownSec">Send the Suggested Study Path
     </b-btn>
   </b-container>
 </template>

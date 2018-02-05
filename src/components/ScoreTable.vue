@@ -1,7 +1,7 @@
 <template>
   <b-container fluid>
     <div>
-      <span> Total students filtered: </span>
+      <span> Total students selected: </span>
       <b-badge pill variant="light">{{filtered_students.length}}</b-badge>
       <b-badge variant="danger">{{selectedStudent.size}}</b-badge>
     </div>
@@ -35,7 +35,7 @@
         </b-card>
 
 
-        <b-card title="Suggested learning path" v-if="modalInfo.content && modalInfo.content.path.length">
+        <b-card title="Suggested Study Path" v-if="modalInfo.content && modalInfo.content.path.length">
 
           <span v-for="(node, index) in modalInfo.content.path">
             {{node}}
@@ -73,15 +73,16 @@
         indeterminate: false,
         selectedStudent: new Set(),
         modal_fields: [
-          {key: "concept", sortable:true},
-          {key: "grade", sortable:true},
-          {key: "mean", sortable:true},
+          {key: "Learning Object", sortable:true},
+          {key: "Score", sortable:true},
+          {key: "Avg. Score", sortable:true},
         ],
       }
     },
     computed: {
       ...mapState({
         filtered_students: state => state.learning_objects.filtered_students,
+        concepts: state => state.learning_objects.concepts,
       }),
       filtered_student_id() {
         return _.map(this.filtered_students, 'student_id')
@@ -92,8 +93,9 @@
 //        ],
         if (this.filtered_students.length > 0)
         {
-          let keys = _.keys(this.filtered_students[0])
-          let fields =  _.map(keys, key => ({'key': key, 'sortable': true}))
+          let keys = this.concepts
+          let fields = _.map(keys, key => ({'key': key, 'sortable': true}))
+          fields.unshift({'key': 'student_id', 'sortable': true})
           fields.unshift('show')
           return fields
         }

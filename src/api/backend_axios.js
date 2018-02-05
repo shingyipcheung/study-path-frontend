@@ -7,6 +7,9 @@ export default {
   fetchConcepts () {
     return axios.get(`${baseUrl}/study_plan/concepts/`)
   },
+  fetchConceptMeans () {
+    return axios.get(`${baseUrl}/study_plan/means/`)
+  },
   fetchConceptEdges () {
     return axios.get(`${baseUrl}/study_plan/graph/`)
   },

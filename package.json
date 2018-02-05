@@ -15,6 +15,7 @@
     "bootstrap-vue": "^1.2.0",
     "d3": "^4.0.0",
     "d3-selection-multi": "^1.0.1",
+    "d3-tip": "^0.7.1",
     "echarts": "^3.6.2",
     "lodash": "^4.17.4",
     "parcoord-es": "^1.0.1",

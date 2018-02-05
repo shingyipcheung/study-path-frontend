@@ -18,12 +18,17 @@ export default {
   name: 'app',
   methods: {
     ...mapActions([
-      'fetchConcepts', 'fetchConceptEdges', 'fetchStudentScores'
+      'fetchConcepts', 'fetchConceptMeans', 'fetchConceptEdges', 'fetchStudentScores'
     ]),
   },
   async created () {
       // https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
-    [await this.fetchConcepts(), await this.fetchConceptEdges(), await this.fetchStudentScores()];
+    [
+      await this.fetchConcepts(),
+      await this.fetchConceptMeans(),
+      await this.fetchConceptEdges(),
+      await this.fetchStudentScores()
+    ];
   }
 }
 </script>
