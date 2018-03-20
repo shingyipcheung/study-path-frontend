@@ -1,9 +1,14 @@
 <template>
   <div id="root">
-    <svg></svg>
+    <svg>
+      <defs>
+        <marker id="arrow" viewBox="-0 -5 10 10" refX="13" refY="0" orient="auto" markerWidth="8" markerHeight="8">
+          <path d="M 0,-5 L 10 ,0 L 0,5" fill="#999"></path>
+        </marker>
+      </defs>
+    </svg>
   </div>
 </template>
-
 <script>
   // http://bl.ocks.org/fancellu/2c782394602a93921faff74e594d1bb1
   import * as d3 from 'd3';
@@ -16,50 +21,50 @@
     name: "learning-object-tree",
     data() {
       return {
-        //      width: 1100,
         nodes: [],
         links: [],
+        width: 1100,
         height: 300,
+        margin: {
+          top: 66,
+          right: 40,
+          bottom: 20,
+          left: 60
+        }
       }
     },
     computed: {
       ...mapState({
-        concepts:  state => state.learning_objects.concepts,
+        concepts: state => state.learning_objects.concepts,
         edges: state => state.learning_objects.concept_edges,
       }),
     },
     mounted() {
-      this.start_draw();
+      this.$nextTick(() => {
+        window.addEventListener('resize', this.render);
+        //Init
+        this.render();
+      });
     },
-    watch: {
-      // https://forum-archive.vuejs.org/topic/5194/advice-on-separating-d3-and-vue-vuex-data/3
-      edges()
-      {
-        this.start_draw();
-      }
+    beforeDestroy() {
+      window.removeEventListener('resize', this.render);
     },
     methods: {
       // main entry for the drawing function
-      start_draw() {
+      render: _.debounce(function() {
         // edges may initially empty
         if (this.edges.length === 0 || this.concepts.length === 0)
           return;
         this.nodes = _.cloneDeep(this.concepts);
         this.links = _.cloneDeep(this.edges);
         // get width and height
-        var root = d3.select(this.$el).node();
+        let root = d3.select(this.$el).node();
         this.width = root.getBoundingClientRect().width;
 
         // set the x scale to set the position of the nodes to the corresponding position of paracoord
-        var margin = {
-          top: 66,
-          right: 40,
-          bottom: 20,
-          left: 60
-        }
         let xScale = d3.scaleLinear()
           .domain([0, this.nodes.length - 1])
-          .range([0 + margin.left, this.width - margin.right]);
+          .range([this.margin.left, this.width - this.margin.right]);
 
         this.nodes.forEach((node, i) => {
           this.nodes[i] = {
@@ -69,15 +74,15 @@
           };
         });
         // start to draw, main entry
-        var that = this;
-        var colors = d3.scaleOrdinal(d3.schemeCategory10);
+        let that = this;
+        let colors = d3.scaleOrdinal(d3.schemeCategory10);
 
         // set the color scale for the risk ratio labels
         let label_color = d3.scaleLinear()
           .domain(d3.extent(this.links, d => d.value))
           .range([d3.rgb(211, 211, 211), d3.rgb(211, 211, 211)]);
 
-        var svg = d3.select(this.$el).select("svg")
+        let svg = d3.select(this.$el).select("svg")
             .attr("width", this.width)
             .attr("height", this.height),
           edgepaths,
@@ -85,25 +90,9 @@
           node,
           link;
 
-        svg.append('defs').append('marker')
-          .attrs({
-            'id': 'arrow',
-            'viewBox': '-0 -5 10 10',
-            'refX': 13,
-            'refY': 0,
-            'orient': 'auto',
-            'markerWidth': 8,
-            'markerHeight': 8,
-          })
-          .append('path')
-          .attrs({
-            'd': 'M 0,-5 L 10 ,0 L 0,5',
-            'fill': '#999'
-          })
-
         // collide radius to prevent overlapping
         let radius = (this.width - 40) / this.nodes.length;
-        var simulation = d3.forceSimulation()
+        let simulation = d3.forceSimulation()
           .force("link", d3.forceLink()
             .id(d => d.name)
             .distance(100)
@@ -111,10 +100,10 @@
           .force("charge", d3.forceManyBody())
           .alphaTarget(0.5)
           .force("center", d3.forceCenter(this.width / 2, this.height / 2))
-          .force("collide", d3.forceCollide(radius / 2))
+          .force("collide", d3.forceCollide(radius / 2));
 
-        var links = this.links;
-        var nodes = this.nodes;
+        let links = this.links;
+        let nodes = this.nodes;
 
         update(links, nodes);
 
@@ -124,7 +113,7 @@
             .enter()
             .append("line")
             .attr("class", "link")
-            .attr('marker-end', 'url(#arrow)')
+            .attr('marker-end', 'url(#arrow)');
 
           link.append("title")
             .text(function (d) {
@@ -168,7 +157,7 @@
             .attr("startOffset", "50%")
             .text(function (d) {
               return d.value.toFixed(2)
-            })
+            });
           // .attr("color", d => label_color(d.value));
 
           node = svg.selectAll(".node")
@@ -180,21 +169,28 @@
                 .on("start", dragstarted)
                 .on("drag", dragged)
               //.on("end", dragended)
-            );
+            )
+            .on("click", function (d) {
+              that.$router.push(/videos/ + d.name);
+            });
 
           node.append("circle")
             .attr("r", 6)
             .style("fill", function (d, i) {
               return colors(i);
+            })
+            .on("mouseover", function () {
+              d3.select(this).attr("r", 8);
+            })
+            .on('mouseout', function () {
+              d3.select(this).transition().duration(500).attr("r", 6);
             });
 
           node.append("text")
-            .attr("dy", -3)
+            .attr("dy", -7)
             .attr("text-anchor", "middle")
             .text(function (d) {
               return d.name;
-            }).on("click", function(d) {
-              that.$router.push(/videos/ + d.name);
             });
 
           simulation.nodes(nodes)
@@ -228,10 +224,10 @@
 
           edgelabels.attr('transform', function (d) {
             if (d.target.x < d.source.x) {
-              var bbox = this.getBBox();
+              let bbox = this.getBBox();
 
-              var rx = bbox.x + bbox.width / 2;
-              var ry = bbox.y + bbox.height / 2;
+              let rx = bbox.x + bbox.width / 2;
+              let ry = bbox.y + bbox.height / 2;
               return 'rotate(180 ' + rx + ' ' + ry + ')';
             } else {
               return 'rotate(0)';
@@ -251,7 +247,8 @@
           // d.fx = d3.event.x;
           d.fy = d3.event.y;
         }
-      }
+      }, 600)
+      // debounce end
     }
   }
 </script>
@@ -266,8 +263,9 @@
 </style>
 
 <style lang="scss">
-  .node {}
-
+  .node:hover {
+    cursor: pointer;
+  }
   .link {
     stroke: #999;
     stroke-opacity: .6;
