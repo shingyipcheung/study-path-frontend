@@ -7,7 +7,7 @@
     </div>
 
       <b-table hover responsive small show-empty fixed :per-page="rows_per_page" :height="height"
-               :items="filtered_students" :fields="fields" :current-page="current_page" @row-clicked="info">
+               :items="filtered_students" :fields="fields" :current-page="current_page" @row-clicked="showReport">
 
         <!--show details-->
         <template slot="show" slot-scope="row">
@@ -27,26 +27,10 @@
         </template>
 
       </b-table>
-      <!-- Info modal -->
-      <b-modal centered id="modalInfo" @hide="resetModal" :title="modalInfo.title" ok-only>
-
-        <b-card title="Scores">
-          <b-table small bordered hover :fields="modal_fields" :items="modalInfo.content.table"></b-table>
-        </b-card>
-
-
-        <b-card title="Suggested Study Path" v-if="modalInfo.content && modalInfo.content.path.length">
-
-          <span v-for="(node, index) in modalInfo.content.path">
-            {{node}}
-            <icon v-if="index != modalInfo.content.path.length - 1" name="arrow-right" scale="0.8"></icon>
-          </span>
-
-          <count-down-alert></count-down-alert>
-
-        </b-card>
-
-      </b-modal>
+      <!--&lt;!&ndash; Info modal &ndash;&gt;-->
+      <!--<b-modal size="md" centered id="ReportModel" @hide="resetModal" :title="model_title" ok-only>-->
+        <!--<student-report :id="id"></student-report>-->
+      <!--</b-modal>-->
 
       <b-pagination size="md" align="center"
                     :total-rows="filtered_students.length"
@@ -58,25 +42,20 @@
 <script>
   import {mapState} from 'vuex'
   import _ from 'lodash';
-  import backend from '@/api/backend_axios'
-  import CountDownAlert from "./CountDownAlert";
+  import StudentReport from "../views/ReportView";
 
   export default {
-    components: {CountDownAlert},
+    components: {StudentReport},
     name: "ScoreTable",
     data() {
       return {
         current_page: 1, rows_per_page: 10,
         height: 400,
-        modalInfo: { title: '', content: '' },
         allSelected: false,
         indeterminate: false,
         selectedStudent: new Set(),
-        modal_fields: [
-          {key: "Learning Object", sortable:true},
-          {key: "Score", sortable:true},
-          {key: "Avg. Score", sortable:true},
-        ],
+        model_title: "",
+        id: null,
       }
     },
     computed: {
@@ -141,20 +120,21 @@
         this.updateState()
         this.$forceUpdate()
       },
-      async getRecommendation(student_id) {
-        const { data } = await backend.getRecommendation(student_id)
-        return data
+      showReport(item, index, event) {
+        // this.model_title = `student id: ${item.student_id}`
+        // this.id = item.student_id
+        // this.$root.$emit('bv::show::modal', 'ReportModel', event)
+        this.$router.push({
+          name: 'report',
+          params: {
+            id: item.student_id
+          }
+        })
       },
-      async info(item, index, event) {
-        this.modalInfo.title = `student id: ${item.student_id}`
-//        this.modalInfo.content = JSON.stringify(item, null, 2)
-        this.modalInfo.content = await this.getRecommendation(item.student_id)
-        this.$root.$emit('bv::show::modal', 'modalInfo', event)
-      },
-      resetModal() {
-        this.modalInfo.title = ''
-        this.modalInfo.content = ''
-      },
+      // resetModal() {
+      //   this.model_title = ""
+      //   this.id = null
+      // }
     }
   }
 </script>

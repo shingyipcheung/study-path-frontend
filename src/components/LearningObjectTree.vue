@@ -28,10 +28,19 @@
         edges: state => state.learning_objects.concept_edges,
       }),
     },
+    mounted() {
+      this.start_draw();
+    },
     watch: {
       // https://forum-archive.vuejs.org/topic/5194/advice-on-separating-d3-and-vue-vuex-data/3
       edges()
       {
+        this.start_draw();
+      }
+    },
+    methods: {
+      // main entry for the drawing function
+      start_draw() {
         // edges may initially empty
         if (this.edges.length === 0 || this.concepts.length === 0)
           return;
@@ -60,12 +69,6 @@
           };
         });
         // start to draw, main entry
-        this.start_draw();
-      }
-    },
-    methods: {
-      // main entry for the drawing function
-      start_draw() {
         var that = this;
         var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -190,6 +193,8 @@
             .attr("text-anchor", "middle")
             .text(function (d) {
               return d.name;
+            }).on("click", function(d) {
+              that.$router.push(/videos/ + d.name);
             });
 
           simulation.nodes(nodes)

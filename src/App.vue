@@ -1,13 +1,17 @@
 <template>
   <main>
-    <nav class="navbar navbar-dark bg-dark">
-      <a class="navbar-brand" href="">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" @click.prevent="goRoot" href="">
         Study Plan
       </a>
+      <a v-if="!isRoot" class="navbar-brand" @click.prevent="goBack" href="">
+        <icon name="arrow-left"></icon>
+      </a>
     </nav>
-    <div>
-      <router-view/>
-    </div>
+    <keep-alive>
+            <router-view v-if="$route.meta.keepAlive"></router-view>
+    </keep-alive>
+    <router-view v-if="!$route.meta.keepAlive"></router-view>
   </main>
 </template>
 
@@ -16,30 +20,43 @@ import { mapActions } from 'vuex'
 
 export default {
   name: 'app',
-  methods: {
-    ...mapActions([
-      'fetchConcepts', 'fetchConceptMeans', 'fetchConceptEdges', 'fetchStudentScores'
-    ]),
+  data() {
+    return {
+      transitionName: "",
+      isRoot: true
+    }
   },
-  async created () {
-      // https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
+  methods: {
+    ...mapActions(['fetchConcepts', 'fetchConceptMeans', 'fetchConceptEdges', 'fetchStudentScores']),
+    goRoot() {
+        this.$router.push('/')
+    },
+    goBack() {
+        this.$router.go(-1)
+    },
+  },
+  created () {
+    if (this.$route.path !== '/')
+      this.$router.push('/');
+
+    // https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
     [
-      await this.fetchConcepts(),
-      await this.fetchConceptMeans(),
-      await this.fetchConceptEdges(),
-      await this.fetchStudentScores()
+      this.fetchConcepts(),
+      this.fetchConceptMeans(),
+      this.fetchConceptEdges(),
+      this.fetchStudentScores()
     ];
+  },
+  watch: {
+    '$route' (to, from) {
+      // const toDepth = to.path.split('/').length
+      // const fromDepth = from.path.split('/').length
+      // this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
+      this.isRoot = to.path == "/"
+    }
   }
 }
 </script>
 
 <style>
-/*#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}*/
 </style>

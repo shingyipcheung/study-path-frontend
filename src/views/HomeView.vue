@@ -45,9 +45,9 @@
 
 
 <script>
-  import StudentParallel from './StudentParallel';
-  import LearningObjectTree from './LearningObjectTree';
-  import ScoreTable from "./ScoreTable";
+  import StudentParallel from '../components/StudentParallel';
+  import LearningObjectTree from '../components/LearningObjectTree';
+  import ScoreTable from "../components/ScoreTable";
 
   export default {
     name: "students",
