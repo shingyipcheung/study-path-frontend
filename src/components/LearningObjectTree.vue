@@ -49,6 +49,9 @@
     beforeDestroy() {
       window.removeEventListener('resize', this.render);
     },
+    activated() {
+      this.render();
+    },
     methods: {
       // main entry for the drawing function
       render: _.debounce(function() {
