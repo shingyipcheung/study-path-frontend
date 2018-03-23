@@ -2,7 +2,6 @@
 
 <template>
   <div class="student-parallel">
-    <div id="graph"></div>
   </div>
 </template>
 
@@ -36,33 +35,42 @@
     watch: {
       students() {
         // set the default selection to all students
-        this.setFilteredStudents(_.cloneDeep(this.students));
-        this.start_draw();
+        this.rerender();
       }
+    },
+    mounted() {
+      this.$nextTick(() => {
+        window.addEventListener('resize', this.rerender);
+      });
+    },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.rerender);
     },
     methods: {
       ...mapMutations({
         setFilteredStudents: 'SET_FILTERED_STUDENTS'
       }),
-      start_draw() {
+      rerender: _.debounce(function() {
+        // reset all filtered students
+        this.setFilteredStudents(_.cloneDeep(this.students));
         // get graph DOM to set width later
-        var that = this;
-        let el = d3.select(this.$el);
-        var graph = el.select("#graph").node();
-        // console.log(graph.getBoundingClientRect().width);
+        let that = this;
+        let graph = d3.select(this.$el);
+        // https://stackoverflow.com/questions/14422198/
+        // remove all SVG element
+        d3.select(".d3-tip").remove();
+        graph.selectAll("*").remove();
 
-        var margin = {top: 66, right: 50, bottom: 20, left: 50},
-          width = graph.getBoundingClientRect().width - margin.left - margin.right,
+        let margin = {top: 66, right: 50, bottom: 20, left: 50},
+          width = graph.node().getBoundingClientRect().width - margin.left - margin.right,
           height = 340 - margin.top - margin.bottom,
           innerHeight = height - 2;
 
-        var devicePixelRatio = window.devicePixelRatio || 1;
-
-        // var color = d3.scaleOrdinal()
+        // let color = d3.scaleOrdinal()
         //   .range(["#5cd6ff"]);
 
         // only the Number will be used
-        var types = {
+        let types = {
           "Number": {
             key: "Number",
             coerce: function (d) {
@@ -74,62 +82,65 @@
             },
             defaultScale: d3.scaleLinear().range([innerHeight, 0])
           },
-          "String": {
-            key: "String",
-            coerce: String,
-            extent: function (data) {
-              return data.sort();
-            },
-            within: function (d, extent, dim) {
-              return extent[0] <= dim.scale(d) && dim.scale(d) <= extent[1];
-            },
-            defaultScale: d3.scalePoint().range([0, innerHeight])
-          },
-          "Date": {
-            key: "Date",
-            coerce: function (d) {
-              return new Date(d);
-            },
-            extent: d3.extent,
-            within: function (d, extent, dim) {
-              return extent[0] <= dim.scale(d) && dim.scale(d) <= extent[1];
-            },
-            defaultScale: d3.scaleTime().range([0, innerHeight])
-          }
+          // "String": {
+          //   key: "String",
+          //   coerce: String,
+          //   extent: function (data) {
+          //     return data.sort();
+          //   },
+          //   within: function (d, extent, dim) {
+          //     return extent[0] <= dim.scale(d) && dim.scale(d) <= extent[1];
+          //   },
+          //   defaultScale: d3.scalePoint().range([0, innerHeight])
+          // },
+          // "Date": {
+          //   key: "Date",
+          //   coerce: function (d) {
+          //     return new Date(d);
+          //   },
+          //   extent: d3.extent,
+          //   within: function (d, extent, dim) {
+          //     return extent[0] <= dim.scale(d) && dim.scale(d) <= extent[1];
+          //   },
+          //   defaultScale: d3.scaleTime().range([0, innerHeight])
+          // }
         };
 
         // self define a reasonable order for dimensions first
         let dimensions = this.dimensions;
-
         // set to required dimension form.
-        for (var i = 0; i < dimensions.length; i++) {
-          var d = dimensions[i];
-          dimensions[i] = {
-            key: d,
-            type: types["Number"],
-            scale: d3.scaleLinear().range([innerHeight, 0])
-          };
+        for (let i = 0; i < dimensions.length; i++) {
+          let d = dimensions[i];
+          if (d.key === undefined)
+          {
+            dimensions[i] = {
+              key: d,
+              type: types["Number"],
+              scale: d3.scaleLinear().range([innerHeight, 0])
+            };
+          }
         }
 
         // copied from the original graph design
-        var xscale = d3.scalePoint()
+        let xscale = d3.scalePoint()
           .domain(d3.range(dimensions.length))
           .range([0, width]);
 
-        var yAxis = d3.axisLeft();
+        let yAxis = d3.axisLeft();
 
-        var container = el.select("#graph").append("div")
+        let container = graph.append("div")
           .attr("class", "parcoords")
           .style("width", width + margin.left + margin.right + "px")
           .style("height", height + margin.top + margin.bottom + "px");
 
-        var svg = container.append("svg")
+        let svg = container.append("svg")
           .attr("width", width + margin.left + margin.right)
           .attr("height", height + margin.top + margin.bottom)
           .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var canvas = container.append("canvas")
+        let devicePixelRatio = window.devicePixelRatio || 1;
+        let canvas = container.append("canvas")
           .attr("width", width * devicePixelRatio)
           .attr("height", height * devicePixelRatio)
           .style("width", width + "px")
@@ -137,15 +148,13 @@
           .style("margin-top", margin.top + "px")
           .style("margin-left", margin.left + "px");
 
-        var ctx = canvas.node().getContext("2d");
+        let ctx = canvas.node().getContext("2d");
         ctx.globalCompositeOperation = 'darken';
         ctx.globalAlpha = 0.15;
         ctx.lineWidth = 1.5;
         ctx.scale(devicePixelRatio, devicePixelRatio);
 
-        // var output = el.select("#graph").append("pre");
-
-        var tip = d3.tip()
+        let tip = d3.tip()
           .attr('class', 'd3-tip')
           .offset([-10, 0])
           .html(function(d) {
@@ -159,7 +168,7 @@
 
         svg.call(tip);
 
-        var axes = svg.selectAll(".axis")
+        let axes = svg.selectAll(".axis").remove()
           .data(dimensions)
           .enter().append("g")
           .attr("class", function (d) {
@@ -170,7 +179,7 @@
           })
 
         // define the students data
-        var data = this.students;
+        let data = this.students;
 
         // set scale domain;
         dimensions.forEach(d => {
@@ -185,12 +194,56 @@
           // });
 
           // truncate long text strings to fit in data table
-          for (var key in d) {
+          for (let key in d) {
             if (d[key] && d[key].length > 35) d[key] = d[key].slice(0, 36);
           }
         });
 
-        var render = renderQueue(draw).rate(50);
+        let project = function(d) {
+          return dimensions.map(function (p, i) {
+            // check if data element has property and contains a value
+            if (!(p.key in d) || d[p.key] === null)
+              return null;
+            return [xscale(i), p.scale(d[p.key])];
+          });
+        };
+
+        function draw(d) {
+          ctx.strokeStyle = "#5cd6ff"// color(d.food_group);
+          ctx.beginPath();
+          let coords = project(d);
+          coords.forEach(function (p, i) {
+            // this tricky bit avoids rendering null values as 0
+            if (p === null) {
+              // this bit renders horizontal lines on the previous/next
+              // dimensions, so that sandwiched null values are visible
+              if (i > 0) {
+                let prev = coords[i - 1];
+                if (prev !== null) {
+                  ctx.moveTo(prev[0], prev[1]);
+                  ctx.lineTo(prev[0] + 6, prev[1]);
+                }
+              }
+              if (i < coords.length - 1) {
+                let next = coords[i + 1];
+                if (next !== null) {
+                  ctx.moveTo(next[0] - 6, next[1]);
+                }
+              }
+              return;
+            }
+
+            if (i == 0) {
+              ctx.moveTo(p[0], p[1]);
+              return;
+            }
+
+            ctx.lineTo(p[0], p[1]);
+          });
+          ctx.stroke();
+        }
+
+        let render = renderQueue(draw).rate(50);
 
         ctx.clearRect(0, 0, width, height);
         ctx.globalAlpha = d3.min([0.85 / Math.pow(data.length, 0.3), 1]);
@@ -198,7 +251,7 @@
 
         axes.append("g")
           .each(function (d) {
-            var renderAxis = "axis" in d
+            let renderAxis = "axis" in d
               ? d.axis.scale(d.scale)  // custom axis
               : yAxis.scale(d.scale);  // default axis
             d3.select(this).call(renderAxis);
@@ -230,59 +283,6 @@
           })
           .on('mouseout', tip.hide)
 
-        // show the food group name, not used in our case.
-        // el.selectAll(".axis.food_group .tick text")
-        //   .style("fill", color);
-
-        // output.text(d3.tsvFormat(data.slice(0,24)));
-
-        // END OF THE MAIN FUNCTION TO DRAW
-        // the following are the helper functions
-
-        function project(d) {
-          return dimensions.map(function (p, i) {
-            // check if data element has property and contains a value
-            if (!(p.key in d) || d[p.key] === null)
-              return null;
-            return [xscale(i), p.scale(d[p.key])];
-          });
-        };
-
-        function draw(d) {
-          ctx.strokeStyle = "#5cd6ff"// color(d.food_group);
-          ctx.beginPath();
-          var coords = project(d);
-          coords.forEach(function (p, i) {
-            // this tricky bit avoids rendering null values as 0
-            if (p === null) {
-              // this bit renders horizontal lines on the previous/next
-              // dimensions, so that sandwiched null values are visible
-              if (i > 0) {
-                var prev = coords[i - 1];
-                if (prev !== null) {
-                  ctx.moveTo(prev[0], prev[1]);
-                  ctx.lineTo(prev[0] + 6, prev[1]);
-                }
-              }
-              if (i < coords.length - 1) {
-                var next = coords[i + 1];
-                if (next !== null) {
-                  ctx.moveTo(next[0] - 6, next[1]);
-                }
-              }
-              return;
-            }
-
-            if (i == 0) {
-              ctx.moveTo(p[0], p[1]);
-              return;
-            }
-
-            ctx.lineTo(p[0], p[1]);
-          });
-          ctx.stroke();
-        }
-
         function brushstart() {
           d3.event.sourceEvent.stopPropagation();
         }
@@ -291,7 +291,7 @@
         function brush() {
           render.invalidate();
 
-          var actives = [];
+          let actives = [];
           svg.selectAll(".axis .brush")
             .filter(function (d) {
               return d3.brushSelection(this);
@@ -303,9 +303,9 @@
               });
             });
 
-          var filtered = data.filter(function (d) {
+          let filtered = data.filter(function (d) {
             if (actives.every(function (active) {
-                var dim = active.dimension;
+                let dim = active.dimension;
                 // test if point is within extents for each active brush
                 return dim.type.within(d[dim.key], active.extent, dim);
               })) {
@@ -318,7 +318,7 @@
           render(filtered);
           that.setFilteredStudents(filtered);
         }
-      },
+      }, 500)
     },
   }
 </script>
