@@ -4,21 +4,23 @@
     <b-row v-if="playing_video" class="player" align-v="start">
 
         <b-col md="8" sm="12" xs="12" ref="mainPlayer" v-resize="onPlayerResize">
-            <strong>{{playing_video.title}}</strong>
             <youtube :video-id="playing_video.vid"
                      :player-width="playerWidth"
                      :player-height="playerHeight">
             </youtube>
+            <p class="mb-0">{{playing_video.title}}</p>
         </b-col>
 
-        <b-col md="3" offset-md="1" sm="12" xs="12">
-          <b-media v-for="video in videos" :key="video.vid">
-            <p class="mb-0">{{video.title}}</p>
-            <a @click.prevent="go(video)" href="">
-              <b-img-lazy thumbnail fluid
+        <b-col md="3" offset-md="1" sm="12" xs="12" class="list" style="padding: 10px; height:400px; overflow-y: scroll">
+          <b-row class="link" v-for="video in videos" :key="video.vid" no-gutters align-v="center" @click.prevent="go(video)">
+            <b-col>
+              <b-img fluid
                         :src="'https://img.youtube.com/vi/'+video.vid+'/maxresdefault.jpg'" alt="placeholder"/>
-            </a>
-          </b-media>
+            </b-col>
+            <b-col style="padding-left: 5px">
+              <p class="mb-0 title">{{video.title}}</p>
+            </b-col>
+          </b-row>
         </b-col>
 
     </b-row>
@@ -73,7 +75,37 @@
   .player {
     padding-top: 20px
   }
+  .link {
+    cursor: pointer;
+    padding-bottom: 7px;
+  }
   p {
     font-family: roboto, sans-serif;
+    /*font-size: medium;*/
+  }
+  .title {
+    font-size: small
+  }
+  b-row {
+    padding: 80px
+  }
+  .list::-webkit-scrollbar-track
+  {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0, 0.1);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+  }
+
+  .list::-webkit-scrollbar
+  {
+    width: 8px;
+    background-color: #F5F5F5;
+  }
+
+  .list::-webkit-scrollbar-thumb
+  {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #555;
   }
 </style>
