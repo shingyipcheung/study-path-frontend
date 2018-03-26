@@ -12,7 +12,10 @@
         </b-col>
 
         <b-col md="3" offset-md="1" sm="12" xs="12" class="list" style="padding: 10px; height:400px; overflow-y: scroll">
-          <b-row class="link" v-for="video in videos" :key="video.vid" no-gutters align-v="center" @click.prevent="go(video)">
+          <b-row class="link" v-for="(video, index) in videos" :key="video.vid" no-gutters align-v="center" @click.prevent="go(video)">
+            <b-col cols="1">
+              <p class="index">{{index + 1}}</p>
+            </b-col>
             <b-col>
               <b-img fluid
                         :src="'https://img.youtube.com/vi/'+video.vid+'/maxresdefault.jpg'" alt="placeholder"/>
@@ -107,5 +110,10 @@
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
     background-color: #555;
+  }
+
+  .index {
+    font-size: 10px;
+    color: gray;
   }
 </style>
