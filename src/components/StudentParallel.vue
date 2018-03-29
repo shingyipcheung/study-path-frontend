@@ -17,7 +17,10 @@
   export default {
     name: "student-parallel",
     data() {
-      return {}
+      return {
+        render_speed: 10,
+
+      }
     },
     computed: {
       ...mapState({
@@ -153,6 +156,7 @@
         ctx.globalAlpha = 0.15;
         ctx.lineWidth = 1.5;
         ctx.scale(devicePixelRatio, devicePixelRatio);
+        ctx.strokeStyle = "#5cd6ff";
 
         let tip = d3.tip()
           .attr('class', 'd3-tip')
@@ -209,7 +213,6 @@
         };
 
         function draw(d) {
-          ctx.strokeStyle = "#5cd6ff"// color(d.food_group);
           ctx.beginPath();
           let coords = project(d);
           coords.forEach(function (p, i) {
@@ -243,11 +246,11 @@
           ctx.stroke();
         }
 
-        let render = renderQueue(draw).rate(50);
+        let render_queue = renderQueue(draw).rate(this.render_speed);
 
         ctx.clearRect(0, 0, width, height);
         ctx.globalAlpha = d3.min([0.85 / Math.pow(data.length, 0.3), 1]);
-        render(data);
+        render_queue(data);
 
         axes.append("g")
           .each(function (d) {
@@ -270,7 +273,7 @@
             d3.select(this).call(d.brush = d3.brushY()
               .extent([[-10, 0], [10, height]])
               .on("start", brushstart)
-              .on("brush", _.debounce(brush, 10))
+              .on("brush", brush)
               .on("end", brush)
             )
           })
@@ -289,7 +292,7 @@
 
         // Handles a brush event, toggling the display of foreground lines.
         function brush() {
-          render.invalidate();
+          render_queue.invalidate();
 
           let actives = [];
           svg.selectAll(".axis .brush")
@@ -315,7 +318,7 @@
 
           ctx.clearRect(0, 0, width, height);
           ctx.globalAlpha = d3.min([0.85 / Math.pow(filtered.length, 0.3), 1]);
-          render(filtered);
+          render_queue(filtered);
           that.setFilteredStudents(filtered);
         }
       }, 500)
