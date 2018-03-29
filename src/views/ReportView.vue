@@ -5,16 +5,15 @@
       <b-table v-if="table" small bordered hover :fields="fields" :items="table"></b-table>
     </b-card>
 
-    <b-card title="Suggested Study Path" v-if="path && path.length">
-      <span v-for="(node, index) in path">
-        {{node}}
+    <b-card title="Recommended Study Paths" v-if="paths && paths.length">
+      <div v-for="path in paths">
+        <span v-for="(node, index) in path">
+          <span :class="{ pass: !failedObj.has(node) }">{{node}} </span>
         <icon v-if="index !== path.length - 1" name="arrow-right" scale="0.8"></icon>
       </span>
+      </div>
       <count-down-alert></count-down-alert>
     </b-card>
-    <!--<div>-->
-      <!--<youtube video-id="jmuWCE5XxKA"></youtube>-->
-    <!--</div>-->
   </b-container>
 </template>
 
@@ -28,8 +27,9 @@
     props: ['id'],
     data() {
       return {
-        path: null,
+        paths: null,
         table: null,
+        failedObj: null,
         modalInfo: { title: '', content: '' },
         fields: [
           {key: "Learning Object", sortable:true},
@@ -51,12 +51,17 @@
         if (student_id != null)
         {
           let { data } = await backend.getRecommendation(student_id)
-          this.path = data.path
+          this.paths = data.paths
           this.table = data.table
+          this.failedObj = new Set()
+          this.table.map((row) => {
+            if (row["_rowVariant"] === "danger")
+              this.failedObj.add(row["Learning Object"])
+          })
         }
       },
       reset() {
-        this.path = null
+        this.paths = null
         this.table = null
       },
     }
@@ -64,5 +69,7 @@
 </script>
 
 <style scoped>
-
+  .pass {
+    color: #c8c8c8;
+  }
 </style>

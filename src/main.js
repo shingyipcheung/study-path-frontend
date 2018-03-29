@@ -9,7 +9,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 // import youtube embed
 import VueYouTubeEmbed from 'vue-youtube-embed'
-Vue.use(VueYouTubeEmbed)
+Vue.use(VueYouTubeEmbed);
 
 // import VueResource module
 import VueResource from 'vue-resource'
@@ -18,28 +18,35 @@ Vue.use(VueResource);
 // import vue awesome
 import 'vue-awesome/icons'
 import Icon from 'vue-awesome/components/Icon'
-Vue.component('icon', Icon)
+Vue.component('icon', Icon);
 
-// not to use Vuetify because of a bug
-// import Vuetify from 'vuetify'
-// import 'vuetify/dist/vuetify.min.css'
-// Vue.use(Vuetify);
-
-// set global headers
-// allow cross origin http traffics
-Vue.http.headers.common['Content-Type'] = 'application/json'
-Vue.http.headers.common['Access-Control-Allow-Origin'] = '*'
-Vue.http.headers.common['Accept'] = 'application/json, text/plain, */*'
-Vue.http.headers.common['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, Authorization, Access-Control-Allow-Origin'
-
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 // import vuex store
 import store from './store'
 import App from './App'
 import router from './router'
 
-new Vue({
+
+import VueProgressBar from 'vue-progressbar'
+const options = {
+  color: '#00fa8d',
+  failedColor: '#c9000e',
+  thickness: '2px',
+  transition: {
+    speed: '1s',
+    opacity: '0.6s',
+    termination: 1000
+  },
+  autoRevert: true,
+  location: 'top',
+  inverse: false,
+  autoFinish: true
+};
+
+Vue.use(VueProgressBar, options);
+
+export default new Vue({ // export the Vue instance
   el: '#app',
   router,
   store,
