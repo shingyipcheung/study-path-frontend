@@ -35,22 +35,25 @@
         return _.cloneDeep(this.student_concept_scores);
       }
     },
+    created() {
+      this.watchCollection(['dimensions', 'students'], this.render);
+    },
     mounted() {
-      this.$nextTick(() => {
-        window.addEventListener('resize', this.rerender);
-        this.rerender();
-      });
+      window.addEventListener('resize', this.render);
+      //this.render();
     },
     beforeDestroy() {
-      window.removeEventListener('resize', this.rerender);
+      window.removeEventListener('resize', this.render);
     },
     methods: {
       ...mapMutations({
         setFilteredStudents: 'SET_FILTERED_STUDENTS'
       }),
-      rerender: _.debounce(function() {
+      render: _.debounce(function() {
+        if (this.students.length === 0 || this.dimensions.length === 0)
+          return;
         // reset all filtered students
-        this.setFilteredStudents(_.cloneDeep(this.students));
+        this.setFilteredStudents(this.students);
         // get graph DOM to set width later
         let that = this;
         let graph = d3.select(this.$el);

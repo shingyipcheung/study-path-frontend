@@ -40,17 +40,16 @@
       }),
     },
     mounted() {
-      this.$nextTick(() => {
-        window.addEventListener('resize', this.render);
-        //Init
-        this.render();
-      });
+      window.addEventListener('resize', this.render);
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.render);
     },
-    activated() {
-      this.render();
+    // activated() {
+    //   this.render();
+    // },
+    created() {
+      this.watchCollection(['concepts', 'edges'], this.render);
     },
     methods: {
       // main entry for the drawing function

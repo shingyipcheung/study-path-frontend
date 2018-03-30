@@ -48,6 +48,7 @@
   import StudentParallel from '../components/StudentParallel';
   import LearningObjectTree from '../components/LearningObjectTree';
   import ScoreTable from "../components/ScoreTable";
+  import { mapActions } from 'vuex'
 
   export default {
     name: "students",
@@ -58,7 +59,19 @@
     },
     data() {
       return {};
-    }
+    },
+    methods: {
+      ...mapActions(['fetchConcepts', 'fetchConceptMeans', 'fetchConceptEdges', 'fetchStudentScores']),
+    },
+    created() {
+      // https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
+      Promise.all([
+          this.fetchConcepts(),
+          this.fetchConceptMeans(),
+          this.fetchConceptEdges(),
+          this.fetchStudentScores()
+      ])
+    },
   }
 </script>
 

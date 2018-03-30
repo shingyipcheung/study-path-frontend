@@ -34,9 +34,9 @@ const options = {
   failedColor: '#c9000e',
   thickness: '2px',
   transition: {
-    speed: '1s',
+    speed: '0.5s',
     opacity: '0.6s',
-    termination: 1000
+    termination: 500
   },
   autoRevert: true,
   location: 'top',
@@ -45,6 +45,15 @@ const options = {
 };
 
 Vue.use(VueProgressBar, options);
+
+// https://stackoverflow.com/questions/41752885/multiple-watchers-same-function-vue-js
+Vue.mixin({
+  methods: {
+    watchCollection(arr, cb) {
+      arr.forEach((val) => this.$watch(val, cb))
+    }
+  }
+})
 
 export default new Vue({ // export the Vue instance
   el: '#app',

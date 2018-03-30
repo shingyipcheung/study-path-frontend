@@ -60,10 +60,6 @@
           })
         }
       },
-      reset() {
-        this.paths = null
-        this.table = null
-      },
     }
   }
 </script>
