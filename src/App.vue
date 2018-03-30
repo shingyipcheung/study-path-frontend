@@ -66,12 +66,12 @@ export default {
     //   this.$Progress.finish()
     // });
     // https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
-    [
-      this.fetchConcepts(),
-      this.fetchConceptMeans(),
-      this.fetchConceptEdges(),
-      this.fetchStudentScores()
-    ];
+    Promise.all([
+        this.fetchConcepts(),
+        this.fetchConceptMeans(),
+        this.fetchConceptEdges(),
+        this.fetchStudentScores()
+    ])
   },
   watch: {
     '$route' (to, from) {
