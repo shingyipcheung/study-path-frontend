@@ -1,5 +1,6 @@
 import * as types from '../mutation-types'
 import backend from '@/api/backend_axios'
+import Vue from 'vue'
 
 // initial state
 const state = {
@@ -57,19 +58,19 @@ const actions = {
 // mutations
 const mutations = {
   [types.SET_CONCEPTS] (state, concepts) {
-    state.concepts = concepts
+    Vue.set(state, 'concepts', concepts)
   },
   [types.SET_CONCEPT_MEANS] (state, means) {
-    state.concept_means = means
+    Vue.set(state, 'concept_means', means)
   },
   [types.SET_CONCEPT_EDGES] (state, edges) {
-    state.concept_edges = edges
+    Vue.set(state, 'concept_edges', edges)
   },
   [types.SET_STUDENT_SCORES] (state, scores) {
-    state.student_concept_scores = scores
+    Vue.set(state, 'student_concept_scores', scores)
   },
   [types.SET_FILTERED_STUDENTS] (state, students) {
-    state.filtered_students = students
+    Vue.set(state, 'filtered_students', students)
   },
 }
 
