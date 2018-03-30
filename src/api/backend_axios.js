@@ -1,5 +1,6 @@
 import axios from 'axios'
 import app from '../main'; // import the instance
+import _ from 'lodash';
 
 const instance = axios.create({
   // baseUrl = 'http://127.0.0.1:8000'
@@ -18,8 +19,12 @@ instance.interceptors.request.use(config => {
   return config;
 });
 
+const finish = _.debounce(() => {
+  app.$Progress.finish()
+}, 800);
+
 instance.interceptors.response.use(response => {
-  app.$Progress.finish(); // finish when a response is received
+  finish(); // finish when a response is received
   return response;
 });
 
