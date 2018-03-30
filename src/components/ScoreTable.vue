@@ -6,7 +6,7 @@
       <b-badge variant="danger">{{selectedStudent.size}}</b-badge>
     </div>
 
-      <b-table hover responsive small show-empty fixed :per-page="rows_per_page" :height="height"
+      <b-table hover responsive small show-empty :per-page="rows_per_page" :style="{height: height + 'px'}"
                :items="filtered_students" :fields="fields" :current-page="current_page" @row-clicked="showReport">
 
         <!--show details-->
