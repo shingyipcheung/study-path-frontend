@@ -35,15 +35,10 @@
         return _.cloneDeep(this.student_concept_scores);
       }
     },
-    watch: {
-      students() {
-        // set the default selection to all students
-        this.rerender();
-      }
-    },
     mounted() {
       this.$nextTick(() => {
         window.addEventListener('resize', this.rerender);
+        this.rerender();
       });
     },
     beforeDestroy() {
