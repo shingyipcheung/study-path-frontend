@@ -6,7 +6,8 @@
       <b-badge variant="danger">{{selectedStudent.size}}</b-badge>
     </div>
 
-      <b-table hover responsive small show-empty :per-page="rows_per_page" :style="{height: height + 'px'}"
+      <b-table :sort-compare="compare" :sort-by.sync="sortBy"
+               hover responsive small show-empty :per-page="rows_per_page" :style="{height: height + 'px'}"
                :items="filtered_students" :fields="fields" :current-page="current_page" @row-clicked="showReport">
 
         <!--show details-->
@@ -51,6 +52,7 @@
     data() {
       return {
         current_page: 1, rows_per_page: 10,
+        sortBy: undefined,
         height: 400,
         allSelected: false,
         indeterminate: false,
@@ -132,6 +134,15 @@
           }
         })
       },
+      compare(a, b) {
+        const x = a[this.sortBy] === null ? -1 : a[this.sortBy];
+        const y = b[this.sortBy] === null ? -1 : b[this.sortBy];
+        if (x < y)
+          return 1;
+        if (x > y)
+          return -1;
+        return 0;
+      }
       // resetModal() {
       //   this.model_title = ""
       //   this.id = null
