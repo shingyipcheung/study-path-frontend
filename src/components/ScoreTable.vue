@@ -40,7 +40,8 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
+  import { createNamespacedHelpers } from 'vuex'
+  const { mapState } = createNamespacedHelpers('learning_objects')
   import _ from 'lodash';
   import StudentReport from "../views/ReportView";
 
@@ -60,8 +61,8 @@
     },
     computed: {
       ...mapState({
-        filtered_students: state => state.learning_objects.filtered_students,
-        concepts: state => state.learning_objects.concepts,
+        filtered_students: state => state.filtered_students,
+        concepts: state => state.concepts,
       }),
       filtered_student_id() {
         return _.map(this.filtered_students, 'student_id')

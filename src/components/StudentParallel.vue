@@ -10,7 +10,9 @@
   d3.tip = require("d3-tip");
   // import the dependency
   import renderQueue from '../assets/js/render_queue.js';
-  import {mapState, mapMutations} from 'vuex'
+  import { createNamespacedHelpers } from 'vuex'
+  const { mapGetters, mapMutations } = createNamespacedHelpers('learning_objects')
+
   import _ from 'lodash';
   import backend from '@/api/backend_axios'
 
@@ -23,10 +25,10 @@
       }
     },
     computed: {
-      ...mapState({
-        concepts: state => state.learning_objects.concepts,
-        concept_means: state => state.learning_objects.concept_means,
-        student_concept_scores: state => state.learning_objects.student_concept_scores,
+      ...mapGetters({
+        concepts: 'allConcepts',
+        concept_means: 'allMeans',
+        student_concept_scores: 'allStudentScores',
       }),
       dimensions() {
         return _.cloneDeep(this.concepts);
@@ -40,7 +42,6 @@
     },
     mounted() {
       window.addEventListener('resize', this.render);
-      //this.render();
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.render);

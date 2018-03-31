@@ -1,18 +1,21 @@
 import axios from 'axios'
 import app from '../main'; // import the instance
 import _ from 'lodash';
+import { cacheAdapterEnhancer } from 'axios-extensions';
 
 const instance = axios.create({
   // baseUrl = 'http://127.0.0.1:8000'
-  baseURL: 'http://143.89.76.37:8000'
+  baseURL: 'http://143.89.76.37:8000',
+  // set global headers
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Accept': 'application/json, text/plain, */*',
+    'Access-Control-Allow-Headers': 'Origin, Accept, Content-Type, Authorization, Access-Control-Allow-Origin',
+  },
+  // cache will be enabled by default
+	adapter: cacheAdapterEnhancer(axios.defaults.adapter, true)
 });
-// set global headers
-// allow cross origin http traffics
-instance.defaults.headers.common['Content-Type'] = 'application/json';
-instance.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-instance.defaults.headers.common['Accept'] = 'application/json, text/plain, */*';
-instance.defaults.headers.common['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, Authorization, Access-Control-Allow-Origin';
-
 
 instance.interceptors.request.use(config => {
   app.$Progress.start(); // for every request start the progress

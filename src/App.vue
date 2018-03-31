@@ -17,6 +17,9 @@
 </template>
 
 <script>
+// import { createNamespacedHelpers } from 'vuex'
+// const { mapActions } = createNamespacedHelpers('learning_objects')
+
 
 export default {
   name: 'app',
@@ -27,6 +30,8 @@ export default {
     }
   },
   methods: {
+    // ...mapActions(['fetchConcepts', 'fetchConceptMeans', 'fetchConceptEdges', 'fetchStudentScores']),
+
     goRoot() {
         this.$router.push('/')
     },
@@ -41,6 +46,14 @@ export default {
   created () {
     if (this.$route.path !== '/')
       this.$router.push('/');
+
+    // https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
+    // Promise.all([
+    //     this.fetchConcepts(),
+    //     this.fetchConceptMeans(),
+    //     this.fetchConceptEdges(),
+    //     this.fetchStudentScores()
+    // ])
 
     // //  [App.vue specific] When App.vue is first loaded start the progress bar
     // this.$Progress.start()

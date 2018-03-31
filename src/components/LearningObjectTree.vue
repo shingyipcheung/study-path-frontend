@@ -12,13 +12,22 @@
 <script>
   // http://bl.ocks.org/fancellu/2c782394602a93921faff74e594d1bb1
   import * as d3 from 'd3';
+  import * as d3Chromatic from 'd3-scale-chromatic';
+
   import "d3-selection-multi";
   import _ from 'lodash';
 
-  import { mapState } from 'vuex'
+  import { createNamespacedHelpers } from 'vuex'
+
+  const { mapGetters } = createNamespacedHelpers('learning_objects')
 
   export default {
     name: "learning-object-tree",
+    props: {
+		  path: {
+		    type: Array,
+		  },
+    },
     data() {
       return {
         nodes: [],
@@ -34,24 +43,30 @@
       }
     },
     computed: {
-      ...mapState({
-        concepts: state => state.learning_objects.concepts,
-        edges: state => state.learning_objects.concept_edges,
+      ...mapGetters({
+        concepts: 'allConcepts',
+        edges: 'allConceptEdges',
       }),
     },
     mounted() {
       window.addEventListener('resize', this.render);
+      if (this.path !== undefined)
+        this.$watch('path', this.render)
+      this.render();
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.render);
     },
-    // activated() {
-    //   this.render();
-    // },
+    activated() {
+      this.render();
+    },
     created() {
       this.watchCollection(['concepts', 'edges'], this.render);
     },
     methods: {
+      // fetchData() {
+      // dispatch().dispatch. then.then...this.$store.dispatch(‘loadData’).then(()
+      //}
       // main entry for the drawing function
       render: _.debounce(function() {
         // edges may initially empty
@@ -77,7 +92,11 @@
         });
         // start to draw, main entry
         let that = this;
-        let colors = d3.scaleOrdinal(d3.schemeCategory10);
+        let colors;
+        if (this.path === null || this.path === undefined) 
+          colors = d3.scaleOrdinal(d3.schemeCategory10);
+        else
+          colors = d3.scaleSequential(d3Chromatic.interpolateGnBu).domain([this.path.length - 1, 0])
 
         // set the color scale for the risk ratio labels
         let label_color = d3.scaleLinear()
@@ -91,7 +110,7 @@
           edgelabels,
           node,
           link;
-
+        svg.selectAll("*").remove();
         // collide radius to prevent overlapping
         let radius = (this.width - 40) / this.nodes.length;
         let simulation = d3.forceSimulation()
@@ -179,6 +198,11 @@
           node.append("circle")
             .attr("r", 6)
             .style("fill", function (d, i) {
+              if (that.path != null && that.path != undefined)
+              {
+                let index = that.path.indexOf(d.name)
+                return colors(index);
+              }
               return colors(i);
             })
             .on("mouseover", function () {
@@ -249,7 +273,7 @@
           // d.fx = d3.event.x;
           d.fy = d3.event.y;
         }
-      }, 600)
+      }, 200)
       // debounce end
     }
   }

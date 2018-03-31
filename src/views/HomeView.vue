@@ -48,7 +48,9 @@
   import StudentParallel from '../components/StudentParallel';
   import LearningObjectTree from '../components/LearningObjectTree';
   import ScoreTable from "../components/ScoreTable";
-  import { mapActions } from 'vuex'
+  import _ from 'lodash';
+  import { createNamespacedHelpers } from 'vuex'
+  const { mapActions } = createNamespacedHelpers('learning_objects')
 
   export default {
     name: "students",
@@ -58,12 +60,15 @@
       LearningObjectTree,
     },
     data() {
-      return {};
+      return {
+        path: ["primitive_type", "variable", "array", "object_class", "instance_variable", "string", "operator", "branch", "loop", "method", "recursion", "nd_array"]
+      };
     },
     methods: {
       ...mapActions(['fetchConcepts', 'fetchConceptMeans', 'fetchConceptEdges', 'fetchStudentScores']),
     },
-    created() {
+    created() 
+    {
       // https://stackoverflow.com/questions/35612428/call-async-await-functions-in-parallel
       Promise.all([
           this.fetchConcepts(),
@@ -71,7 +76,7 @@
           this.fetchConceptEdges(),
           this.fetchStudentScores()
       ])
-    },
+    }
   }
 </script>
 

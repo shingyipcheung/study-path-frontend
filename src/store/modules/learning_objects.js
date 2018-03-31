@@ -1,6 +1,7 @@
 import * as types from '../mutation-types'
 import backend from '@/api/backend_axios'
 import Vue from 'vue'
+import _ from 'lodash'
 
 // initial state
 const state = {
@@ -14,6 +15,7 @@ const state = {
 // getters
 const getters = {
   allConcepts: state => state.concepts,
+  allMeans: state => state.concept_means,
   allConceptEdges: state => state.concept_edges,
   allStudentScores: state => state.student_concept_scores,
   allFilteredStudents: state => state.filteredStudents
@@ -23,6 +25,8 @@ const getters = {
 const actions = {
   async fetchConcepts ({ commit }) {
     try {
+      if (state.concepts.length !== 0)
+        return;
       const { data } = await backend.fetchConcepts()
       commit(types.SET_CONCEPTS, data)
     } catch(e) {
@@ -31,6 +35,8 @@ const actions = {
   },
   async fetchConceptMeans ({ commit }) {
     try {
+      if (!_.isEmpty(state.concept_means))
+        return;
       const { data } = await backend.fetchConceptMeans()
       commit(types.SET_CONCEPT_MEANS, data)
     } catch(e) {
@@ -39,6 +45,8 @@ const actions = {
   },
   async fetchConceptEdges ({ commit }) {
     try {
+      if (state.concept_edges.length !== 0)
+        return;
       const { data } = await backend.fetchConceptEdges()
       commit(types.SET_CONCEPT_EDGES, data)
     } catch(e) {
@@ -47,6 +55,8 @@ const actions = {
   },
   async fetchStudentScores ({ commit }) {
     try {
+      if (state.student_concept_scores.length !== 0)
+        return;
       const { data } = await backend.fetchStudentScores()
       commit(types.SET_STUDENT_SCORES, data)
     } catch(e) {
@@ -78,5 +88,6 @@ export default {
   state,
   getters,
   actions,
-  mutations
+  mutations,
+  namespaced: true,
 }
