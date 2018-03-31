@@ -6,7 +6,7 @@
         <!-- Graph -->
         <b-card title="Learning Object Dependency Graph">
           <hr>
-          <learning-object-tree :path="selectedPath"></learning-object-tree>
+          <learning-object-tree :path="selectedIndex == -1 ? null: paths[selectedIndex]"></learning-object-tree>
         </b-card>
         <!-- /graph -->
 
@@ -16,11 +16,13 @@
           <div class="path" v-for="(path, index) in paths" :key="index">
             <b-row no-gutters align-v="center">
               <b-col cols="2">
-                <b-badge variant="dark" @click.prevent="clicked(path)" href="#">{{ "Pathway "+ (index + 1)}}</b-badge>
+                <b-badge :variant="selectedIndex === index ? 'warning': 'dark'" @click.prevent="clicked(index)" href="#">
+                  {{ "Pathway "+ (index + 1)}}
+                </b-badge>
               </b-col>
               <b-col cols="9">
                 <span v-for="(node, index) in path" :key="index">
-                  <span :class="{ pass: !failedObj.has(node) }">{{node}} </span>
+                  <span :class="{ pass: !failedObj.has(node) }"> {{node}}</span>
                   <icon v-if="index !== path.length - 1" name="arrow-right" scale="0.5"></icon>
                 </span>
               </b-col>
@@ -35,7 +37,7 @@
       <b-col md="4">
         <!-- table -->
         <b-card title="Scores">
-          <b-table v-if="table" small bordered hover :fields="fields" :items="table"></b-table>
+          <b-table v-if="table" :sort-by.sync="sortBy" small bordered hover :fields="fields" :items="table"></b-table>
         </b-card>
         <!-- /table -->
       </b-col>
@@ -57,8 +59,9 @@
     data() {
       return {
         paths: null,
-        selectedPath: null,
+        selectedIndex: -1,
         table: null,
+        sortBy: null,
         failedObj: null,
         modalInfo: { title: '', content: '' },
         fields: [
@@ -83,8 +86,20 @@
     methods: {
       ...mapActions(['fetchConcepts', 'fetchConceptEdges']),
 
-      clicked(path) {
-        this.selectedPath = path;
+      clicked(index) {
+        if (this.table.length !== this.paths[index].length)
+          return;
+        this.selectedIndex = index
+        this.sortBy = null
+        this.$nextTick(() => {
+          const path = this.paths[index];
+          const names = _.map(this.table, "Learning Object");
+          let temp = [];
+          path.forEach(node => {
+            temp.push(this.table[_.indexOf(names, node)])
+          });
+          this.table = temp;
+        });
       },
       async fetchReport(student_id) {
         if (student_id != null)
