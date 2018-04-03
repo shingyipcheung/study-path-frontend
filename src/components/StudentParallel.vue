@@ -1,7 +1,7 @@
 <!-- adapted from https://bl.ocks.org/syntagmatic/05a5b0897a48890133beb59c815bd953 -->
 
 <template>
-  <div class="student-parallel">
+  <div class="student-parallel" ref="graph">
   </div>
 </template>
 
@@ -21,7 +21,7 @@
     data() {
       return {
         render_speed: 10,
-
+        oldWidth: null
       }
     },
     computed: {
@@ -46,6 +46,14 @@
     beforeDestroy() {
       window.removeEventListener('resize', this.render);
     },
+    activated() {
+      window.addEventListener('resize', this.render);
+      if (this.$refs.graph.clientWidth !== this.oldWidth)
+        this.render()
+    },
+    deactivated() {
+      window.removeEventListener('resize', this.render);
+    },
     methods: {
       ...mapMutations({
         setFilteredStudents: 'SET_FILTERED_STUDENTS'
@@ -57,17 +65,16 @@
         this.setFilteredStudents(this.students);
         // get graph DOM to set width later
         let that = this;
-        let graph = d3.select(this.$el);
+        let graph = d3.select(this.$refs.graph);
         // https://stackoverflow.com/questions/14422198/
         // remove all SVG element
         d3.select(".d3-tip").remove();
         graph.selectAll("*").remove();
-
+        this.oldWidth = this.$refs.graph.clientWidth
         let margin = {top: 66, right: 50, bottom: 20, left: 50},
-          width = graph.node().getBoundingClientRect().width - margin.left - margin.right,
+          width = this.$refs.graph.clientWidth - margin.left - margin.right,
           height = 340 - margin.top - margin.bottom,
           innerHeight = height - 2;
-
         // let color = d3.scaleOrdinal()
         //   .range(["#5cd6ff"]);
 
