@@ -4,6 +4,7 @@ import Router from 'vue-router'
 const HomeView = () => import('@/views/HomeView');
 const ReportView = () => import('@/views/ReportView');
 const VideoView = () => import('@/views/VideoView');
+const ProblemView = () => import('@/views/ProblemView');
 
 Vue.use(Router)
 
@@ -40,6 +41,16 @@ export default new Router({
       path: '/videos/:concept',
       name: 'videos',
       component: VideoView,
+      meta: {
+        keepAlive: false,
+        scrollToTop: true
+      },
+      props: true
+    },
+    {
+      path: '/problems/:concept',
+      name: 'problems',
+      component: ProblemView,
       meta: {
         keepAlive: false,
         scrollToTop: true

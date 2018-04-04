@@ -64,9 +64,10 @@
       this.watchCollection(['concepts', 'edges'], this.render);
     },
     methods: {
-      // fetchData() {
-      // dispatch().dispatch. then.then...this.$store.dispatch(‘loadData’).then(()
-      //}
+      trimScale(n, p) {
+        const s = n * p;
+        return d3.scaleLinear().domain([0, n - 1]).range([s, n - 1 - s]);
+      },
       // main entry for the drawing function
       render: _.debounce(function() {
         // edges may initially empty
@@ -92,11 +93,15 @@
         });
         // start to draw, main entry
         let that = this;
-        let colors;
+        let colors, trim;
+
         if (this.path === null || this.path === undefined) 
           colors = d3.scaleOrdinal(d3.schemeCategory10);
         else
-          colors = d3.scaleSequential(d3Chromatic.interpolateGnBu).domain([this.path.length - 1, 0])
+        {
+          colors = d3.scaleSequential(d3Chromatic.interpolateOrRd).domain([this.path.length - 1, 0])
+          trim = this.trimScale(this.path.length, 0.1);
+        }
 
         // set the color scale for the risk ratio labels
         let label_color = d3.scaleLinear()
@@ -201,7 +206,7 @@
               if (that.path != null && that.path != undefined)
               {
                 let index = that.path.indexOf(d.name)
-                return colors(index);
+                return colors(trim(index));
               }
               return colors(i);
             })

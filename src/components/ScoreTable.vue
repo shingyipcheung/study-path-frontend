@@ -28,10 +28,6 @@
         </template>
 
       </b-table>
-      <!--&lt;!&ndash; Info modal &ndash;&gt;-->
-      <!--<b-modal size="md" centered id="ReportModel" @hide="resetModal" :title="model_title" ok-only>-->
-        <!--<student-report :id="id"></student-report>-->
-      <!--</b-modal>-->
 
       <b-pagination size="md" align="center"
                     :total-rows="filtered_students.length"
@@ -44,10 +40,8 @@
   import { createNamespacedHelpers } from 'vuex'
   const { mapState } = createNamespacedHelpers('learning_objects')
   import _ from 'lodash';
-  import StudentReport from "../views/ReportView";
 
   export default {
-    components: {StudentReport},
     name: "ScoreTable",
     data() {
       return {
