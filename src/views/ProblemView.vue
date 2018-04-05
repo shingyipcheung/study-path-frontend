@@ -1,8 +1,9 @@
 <template>
-  <div>
-      {{concept}}
-    <problem-item problem_id="27a9876d7b714ae2b190e085857f4663"></problem-item>
-  </div>
+  <b-container>
+    <b-row>
+      <problem-item problem_id="d1dfc14002cc41aab7a6cb31c3b6aa18"></problem-item>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -17,5 +18,4 @@
 </script>
 
 <style scoped>
-
 </style>

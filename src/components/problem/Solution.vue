@@ -1,7 +1,16 @@
 <template>
-  <h1>
-    <slot></slot>
-  </h1>
+
+  <div>
+    <!-- Using modifiers -->
+    <b-btn v-b-toggle.collapse variant="link" size="sm" style="color: #0ECB84">Ans</b-btn>
+
+    <!-- element to collapse -->
+    <b-collapse id="collapse">
+      <b-card>
+        <slot></slot>
+      </b-card>
+    </b-collapse>
+  </div>
 </template>
 
 <script>
@@ -9,10 +18,6 @@
   export default {
     name: "solution",
     props: {
-      correct: {
-        type: Boolean,
-        required: true
-      }
     },
     data() {
       return {

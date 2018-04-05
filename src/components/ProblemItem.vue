@@ -1,20 +1,15 @@
 <template>
-  <div v-html="html">
-  </div>
 </template>
 
 <script>
   import backend from '@/api/backend_axios'
+  import Vue from 'vue'
 
   export default {
     name: "problem-item",
     props: ['problem_id'],
-    components: {
-      'solution': () => import('./problem/Solution')
-    },
     data() {
       return {
-        html: ""
       }
     },
     created() {
@@ -25,7 +20,20 @@
         if (problem_id != null)
         {
           let { data } = await backend.getProblemHTML(problem_id)
-          this.html = data
+          let res = Vue.compile(data);
+          let { render, staticRenderFns } = res;
+          new Vue({ 
+            el: this.$el, 
+            render, 
+            staticRenderFns, 
+            components: {
+              'choice': () => import('./problem/Choice'),
+              'choicegroup': () => import('./problem/ChoiceGroup'),
+              'multiplechoiceresponse': () => import('./problem/MultipleChoiceResponse'),
+              'problem': () => import('./problem/Problem'),
+              'solution': () => import('./problem/Solution'),
+            }
+          })
         }
       },
     }
@@ -33,5 +41,4 @@
 </script>
 
 <style scoped>
-
 </style>
