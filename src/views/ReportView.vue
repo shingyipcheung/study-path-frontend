@@ -1,7 +1,7 @@
 <template>
   <b-container>
 
-    <b-row style="padding: 10px">
+    <b-row>
       <b-col md="8">
         <!-- Graph -->
         <b-card title="Learning Object Dependency Graph">

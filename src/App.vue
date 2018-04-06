@@ -8,10 +8,12 @@
         <icon name="arrow-left"></icon>
       </a>
     </nav>
-    <keep-alive>
-            <router-view v-if="$route.meta.keepAlive"></router-view>
-    </keep-alive>
-    <router-view v-if="!$route.meta.keepAlive"></router-view>
+    <div class="p-4">
+      <keep-alive>
+        <router-view v-if="$route.meta.keepAlive"></router-view>
+      </keep-alive>
+      <router-view v-if="!$route.meta.keepAlive"></router-view>
+    </div>
     <vue-progress-bar></vue-progress-bar>
   </main>
 </template>

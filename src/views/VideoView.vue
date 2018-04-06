@@ -1,7 +1,7 @@
 <template>
   <b-container>
 
-    <b-row v-if="playing_video" class="player" align-v="start">
+    <b-row v-if="playing_video" align-v="start">
 
         <b-col md="8" sm="12" xs="12" ref="mainPlayer" v-resize="onPlayerResize">
             <youtube :video-id="playing_video.vid"
@@ -75,9 +75,6 @@
 </script>
 
 <style scoped>
-  .player {
-    padding-top: 20px
-  }
   .link {
     cursor: pointer;
     padding-bottom: 7px;
