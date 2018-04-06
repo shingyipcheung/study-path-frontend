@@ -1,5 +1,5 @@
 <template>
-  <b-list-group-item :class="correct" href="#">
+  <b-list-group-item :variant="variant" href="#" @click="clicked()">
     <slot></slot>
   </b-list-group-item>
 </template>
@@ -15,18 +15,30 @@
         validator: value => {
           return value === "true" || value === "false"
         }
-      }
+      },
     },
     data() {
       return {
-
+        variant: ""
       }
     },
+    methods: {
+      clicked()
+      {
+        this.$parent.$emit('clicked', this)
+      },
+      toggle() {
+        if (this.variant === "info")
+          this.variant = ""
+        else
+          this.variant = "info"
+      }
+    }
   }
 </script>
 
 <style scoped>
-  .true {
-    color: red;
-  }
+  /*.true {*/
+    /*color: red;*/
+  /*}*/
 </style>

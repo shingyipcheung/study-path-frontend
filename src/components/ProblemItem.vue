@@ -1,4 +1,9 @@
 <template>
+  <div class="mx-auto w-50">
+    <div :id="problem_id">
+
+    </div>
+  </div>
 </template>
 
 <script>
@@ -20,12 +25,13 @@
         if (problem_id != null)
         {
           let { data } = await backend.getProblemHTML(problem_id)
-          let res = Vue.compile(data);
-          let { render, staticRenderFns } = res;
+          // let res = Vue.compile(data);
+          // let { render, staticRenderFns } = res;
           new Vue({ 
-            el: this.$el, 
-            render, 
-            staticRenderFns, 
+            el: "#" + problem_id,
+            template: data,
+            // render,
+            // staticRenderFns,
             components: {
               'choice': () => import('./problem/Choice'),
               'choicegroup': () => import('./problem/ChoiceGroup'),

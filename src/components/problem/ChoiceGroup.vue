@@ -1,5 +1,5 @@
 <template>
-  <b-list-group>
+  <b-list-group style="width: fit-content">
     <slot></slot>
   </b-list-group>
 </template>
@@ -17,13 +17,26 @@
     },
     data() {
       return {
-
+        choices: [],
+        previous: null
       }
     },
     mounted() 
     {
-      const choices = _.filter(this.$slots.default, 'componentInstance')
-      console.log(choices)
+      this.$on('clicked', (choice) => {
+        //console.log(choice)
+        if (this.previous != choice)
+        {
+          if (this.previous)
+            this.previous.toggle()
+          this.previous = choice
+          choice.toggle()
+        }
+
+      })
+      // console.log(this.$children)
+      // const choices = _.filter(this.$slots.default, 'componentInstance')
+      // console.log(choices)
     }
   }
 </script>
