@@ -2,7 +2,9 @@
 
   <div>
     <!-- Using modifiers -->
-    <b-btn v-b-modal.modalsm variant="link" size="sm" style="color: #0ECB84">Ans</b-btn>
+    <div class="float-right">
+      <b-btn v-b-modal.modalsm variant="link" size="sm" style="color: #0ECB84">Ans</b-btn>
+    </div>
 
     <!-- element to collapse -->
     <!--<b-collapse id="collapse">-->

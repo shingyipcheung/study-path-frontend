@@ -21,6 +21,7 @@
           <div class="card-header">
             <icon name="filter"></icon>
             Learning Object Performance of Students
+            <icon v-if="loading" name="sync-alt" spin style="color: #5b5b5b;"></icon>
           </div>
           <div class="card-block">
             <student-parallel></student-parallel>
@@ -33,6 +34,7 @@
           <div class="card-header">
             <icon name="list-ol"></icon>
             Selected Students
+            <icon v-if="loading" name="sync-alt" spin style="color: #5b5b5b;"></icon>
           </div>
           <div class="card-block">
             <score-table></score-table>
@@ -61,7 +63,8 @@
     },
     data() {
       return {
-        path: ["primitive_type", "variable", "array", "object_class", "instance_variable", "string", "operator", "branch", "loop", "method", "recursion", "nd_array"]
+        path: ["primitive_type", "variable", "array", "object_class", "instance_variable", "string", "operator", "branch", "loop", "method", "recursion", "nd_array"],
+        loading: true,
       };
     },
     methods: {
@@ -76,6 +79,11 @@
           this.fetchConceptEdges(),
           this.fetchStudentScores()
       ])
+    },
+    mounted() {
+      this.$on('loaded', () => {
+        this.loading = false
+      })
     }
   }
 </script>

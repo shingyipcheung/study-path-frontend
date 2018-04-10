@@ -1,7 +1,9 @@
 <!-- adapted from https://bl.ocks.org/syntagmatic/05a5b0897a48890133beb59c815bd953 -->
 
 <template>
-  <div class="student-parallel" ref="graph">
+  <div>
+    <div class="student-parallel" ref="graph">
+    </div>
   </div>
 </template>
 
@@ -21,7 +23,7 @@
     data() {
       return {
         render_speed: 10,
-        oldWidth: null
+        oldWidth: null,
       }
     },
     computed: {
@@ -61,6 +63,7 @@
       render: _.debounce(function() {
         if (this.students.length === 0 || this.dimensions.length === 0)
           return;
+        this.$parent.$emit('loaded');
         // reset all filtered students
         this.setFilteredStudents(this.students);
         // get graph DOM to set width later

@@ -11,24 +11,43 @@
         <!-- /graph -->
 
         <!-- paths -->
-        <b-card title="Recommended Study Paths" v-if="paths && paths.length" class="list" style="height:400px; overflow-y: scroll">
-          <hr>
-          <div class="path" v-for="(path, index) in paths" :key="index">
-            <b-row no-gutters align-v="center">
-              <b-col cols="2">
-                <b-badge :variant="selectedIndex === index ? 'warning': 'dark'" @click.prevent="clicked(index)" href="#">
-                  {{ "Pathway "+ (index + 1)}}
-                </b-badge>
+        <b-card v-if="paths && paths.length">
+          <div class="card-title">
+            <b-row>
+              <b-col>
+                            <h4>Recommended Study Paths</h4>
               </b-col>
-              <b-col cols="9">
-                <span v-for="(node, index) in path" :key="index">
-                  <span :class="{ pass: !failedObj.has(node) }"> {{node}}</span>
-                  <icon v-if="index !== path.length - 1" name="arrow-right" scale="0.5"></icon>
-                </span>
+              <b-col>
+                            <div v-if="selectedIndex !== -1">
+              <b-btn variant="link" @click="reset" size="sm" class="float-right">
+                <icon name="sync-alt" style="color: #5b5b5b;"></icon>
+              </b-btn>
+            </div>
               </b-col>
             </b-row>
-            <hr>
+
+
+            <!--<hr>-->
           </div>
+          <b-card class="list" style="height:400px; overflow-y: scroll">
+            <div class="path" v-for="(path, index) in paths" :key="index">
+              <b-row no-gutters align-v="center">
+                <b-col cols="2">
+                  <b-badge :variant="selectedIndex === index ? 'warning': 'dark'" @click.prevent="clicked(index)" href="#">
+                    {{ "Pathway "+ (index + 1)}}
+                  </b-badge>
+                </b-col>
+                <b-col cols="9">
+                  <span v-for="(node, index) in path" :key="index">
+                    <span :class="{ pass: !failedObj.has(node) }"> {{node}}</span>
+                    <icon v-if="index !== path.length - 1" name="arrow-right" scale="0.5"></icon>
+                  </span>
+                </b-col>
+              </b-row>
+              <hr>
+            </div>
+          </b-card>
+
           <count-down-alert></count-down-alert>
         </b-card>
         <!-- /path -->
@@ -114,6 +133,9 @@
           })
         }
       },
+      reset() {
+        this.selectedIndex = -1
+      }
     }
   }
 </script>

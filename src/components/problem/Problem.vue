@@ -1,6 +1,7 @@
 <template>
   <b-card>
     <slot></slot>
+    <b-btn :disabled="disable">Check</b-btn>
   </b-card>
 </template>
 
@@ -16,9 +17,16 @@
     },
     data() {
       return {
-
+        disable: true
       }
     },
+    mounted()
+    {
+      this.$on('clicked', (choice) => {
+        // console.log(this.$children)
+        this.disable = false
+      })
+    }
   }
 </script>
 

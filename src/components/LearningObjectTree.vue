@@ -17,9 +17,9 @@
   import "d3-selection-multi";
   import _ from 'lodash';
 
-  import { createNamespacedHelpers } from 'vuex'
+  import { createNamespacedHelpers } from 'vuex';
 
-  const { mapGetters } = createNamespacedHelpers('learning_objects')
+  const { mapGetters } = createNamespacedHelpers('learning_objects');
 
   export default {
     name: "learning-object-tree",
@@ -36,10 +36,11 @@
         height: 300,
         margin: {
           top: 66,
-          right: 40,
+          right: 60,
           bottom: 20,
           left: 60
-        }
+        },
+        nodesPerColumn: 3,
       }
     },
     computed: {
@@ -51,7 +52,7 @@
     mounted() {
       window.addEventListener('resize', this.render);
       if (this.path !== undefined)
-        this.$watch('path', this.render)
+        this.$watch('path', this.render);
       this.render();
     },
     beforeDestroy() {
@@ -79,29 +80,48 @@
         let root = d3.select(this.$el).node();
         this.width = root.getBoundingClientRect().width;
 
-        // set the x scale to set the position of the nodes to the corresponding position of paracoord
-        let xScale = d3.scaleLinear()
+        // start to draw, main entry
+        let that = this;
+        let colors, trim, positionX, positionY;
+
+        if (this.path === null || this.path === undefined)
+        {
+          colors = d3.scaleOrdinal(d3.schemeCategory10);
+
+          positionX = d3.scaleLinear()
           .domain([0, this.nodes.length - 1])
           .range([this.margin.left, this.width - this.margin.right]);
 
-        this.nodes.forEach((node, i) => {
-          this.nodes[i] = {
-            name: node,
-            // the node's fixed x-position
-            fx: xScale(i),
-          };
-        });
-        // start to draw, main entry
-        let that = this;
-        let colors, trim;
-
-        if (this.path === null || this.path === undefined) 
-          colors = d3.scaleOrdinal(d3.schemeCategory10);
+          this.nodes.forEach((node, i) => {
+            this.nodes[i] = {
+              name: node,
+              // the node's fixed x-position
+              fx: positionX(i)
+            };
+          });
+        }
         else
         {
-          colors = d3.scaleSequential(d3Chromatic.interpolateOrRd).domain([this.path.length - 1, 0])
-          trim = this.trimScale(this.path.length, 0.1);
+          colors = d3.scaleSequential(d3Chromatic.interpolateOrRd).domain([this.path.length - 1, 0]);
+          trim = this.trimScale(this.path.length, 0.);
+          positionX = d3.scaleLinear()
+          .domain([0, this.nodes.length / this.nodesPerColumn - 1])
+          .range([this.margin.left, this.width - this.margin.right]);
+
+          positionY = d3.scaleLinear()
+          .domain([0, this.nodesPerColumn])
+          .range([this.margin.top, this.height - this.margin.bottom]);
+
+          this.nodes.forEach((node, i) => {
+            console.log(Math.trunc(that.path.indexOf(node) / that.nodesPerColumn));
+            this.nodes[i] = {
+              name: node,
+              fx: positionX(Math.trunc(that.path.indexOf(node) / that.nodesPerColumn)),
+              fy: positionY(that.path.indexOf(node) % that.nodesPerColumn),
+            };
+          });
         }
+
 
         // set the color scale for the risk ratio labels
         let label_color = d3.scaleLinear()
@@ -203,9 +223,9 @@
           node.append("circle")
             .attr("r", 6)
             .style("fill", function (d, i) {
-              if (that.path != null && that.path != undefined)
+              if (that.path != null && that.path !== undefined)
               {
-                let index = that.path.indexOf(d.name)
+                let index = that.path.indexOf(d.name);
                 return colors(trim(index));
               }
               return colors(i);

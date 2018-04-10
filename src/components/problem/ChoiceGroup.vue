@@ -31,8 +31,11 @@
             this.previous.toggle()
           this.previous = choice
           choice.toggle()
+          let parent = this.$parent
+          while (parent.$options._componentTag !== 'problem')
+              parent = parent.$parent
+          parent.$emit('clicked', choice.correct)
         }
-
       })
       // console.log(this.$children)
       // const choices = _.filter(this.$slots.default, 'componentInstance')
