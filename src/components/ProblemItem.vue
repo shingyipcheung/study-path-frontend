@@ -1,9 +1,7 @@
 <template>
   <div class="mx-auto w-50">
-    <!--<div ref="problem">-->
-
-    <!--</div>-->
-    <component :is="view"></component>
+    <div :id="problem_id">
+    </div>
   </div>
 </template>
 
@@ -13,27 +11,15 @@
 
   export default {
     name: "problem-item",
-                components: {
-              'choice': require('./problem/Choice').default,
-              'choicegroup': require('./problem/ChoiceGroup').default,
-              'multiplechoiceresponse': require('./problem/MultipleChoiceResponse').default,
-              'problem': require('./problem/Problem').default,
-              'solution': require('./problem/Solution').default
-                },
 
     props: ['problem_id'],
     data() {
       return {
-        view: {}
+        problem: null
       }
     },
     created() {
       this.getProblemHTML(this.problem_id);
-    },
-    updated() {
-      // console.log(this.$el)
-      // console.log(this.$refs["problem"])
-      this.$nextTick(() => this.getProblemHTML(this.problem_id));
     },
     methods: {
       async getProblemHTML(problem_id) {
@@ -42,26 +28,26 @@
           let { data } = await backend.getProblemHTML(problem_id)
           // let res = Vue.compile(data);
           // let { render, staticRenderFns } = res;
-          this.$set(this.view, 'template', data);
-          console.log(this.view)
-          // this.view = {
-          //   template: data
-          // }
-          // new Vue({
-          //   // el: this.$el,
-          //   template: data,
-          //   // render,
-          //   // staticRenderFns,
-          //   components: {
-          //     'choice': () => import('./problem/Choice'),
-          //     'choicegroup': () => import('./problem/ChoiceGroup'),
-          //     'multiplechoiceresponse': () => import('./problem/MultipleChoiceResponse'),
-          //     'problem': () => import('./problem/Problem'),
-          //     'solution': () => import('./problem/Solution'),
-          //   },
-          //   // hack
-          //   parent: this.$parent,
-          // }).$mount(this.$refs["problem"])
+          if (this.problem != null) {
+            this.problem.$destroy()
+            this.problem = null
+          }
+
+           this.problem = new Vue({
+              el: '#' + this.problem_id,
+              template: data,
+              // render,
+              // staticRenderFns,
+              components: {
+                'choice': () => import('./problem/Choice'),
+                'choicegroup': () => import('./problem/ChoiceGroup'),
+                'multiplechoiceresponse': () => import('./problem/MultipleChoiceResponse'),
+                'problem': () => import('./problem/Problem'),
+                'solution': () => import('./problem/Solution'),
+              },
+              // hack
+              parent: this.$parent,
+            })
         }
       },
     }

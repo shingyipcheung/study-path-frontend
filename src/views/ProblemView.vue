@@ -1,18 +1,16 @@
 <template>
   <b-container>
+    <!--hack!! key for recreation -->
     <b-row>
-      <problem-item :problem_id="problem"></problem-item>
+      <problem-item :key="problem" :problem_id="problem"></problem-item>
     </b-row>
-    <!--<b-row>-->
-      <!--<problem-item v-for="problem_id in problems" :problem_id="problem_id" :key="problem_id"></problem-item>-->
-    <!--</b-row>-->
   </b-container>
 </template>
 
 <script>
   import ProblemItem from "../components/ProblemItem";
   export default {
-    name: "problem-view",
+    name: "problem-problem",
     props: ['concept'],
     components: {
       ProblemItem,
@@ -41,7 +39,6 @@
       {
         this.index += 1
         this.problem = this.problems[this.index]
-        console.log(this.problem)
       }
     }
   }

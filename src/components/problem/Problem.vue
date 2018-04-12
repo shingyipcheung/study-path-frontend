@@ -72,7 +72,7 @@
       checked() {
         if (this.state.showAns)
         {
-          // hack! emit to problem view
+          // hack! emit to problem problem
           this.$parent.$parent.$emit('next')
         }
         else {
@@ -84,7 +84,6 @@
     mounted()
     {
       this.$on('clicked', (choice) => {
-        // console.log(this.$children)
         this.checkDisable = false
         this.choice = choice
       })
