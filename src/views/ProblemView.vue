@@ -1,16 +1,14 @@
 <template>
-  <b-container>
-    <!--hack!! key for recreation -->
-    <b-row>
-      <problem-item :key="problem" :problem_id="problem"></problem-item>
-    </b-row>
-  </b-container>
+  <!--hack!! key for recreation -->
+  <div>
+    <problem-item :key="problem" :problem_id="problem"></problem-item>
+  </div>
 </template>
 
 <script>
   import ProblemItem from "../components/ProblemItem";
   export default {
-    name: "problem-problem",
+    name: "problem-view",
     props: ['concept'],
     components: {
       ProblemItem,
@@ -39,6 +37,7 @@
       {
         this.index += 1
         this.problem = this.problems[this.index]
+        console.log(this.problem)
       }
     }
   }

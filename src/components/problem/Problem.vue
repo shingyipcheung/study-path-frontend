@@ -13,7 +13,7 @@
       <b-btn v-b-modal.modalsm variant="link" v-if="state.showAns"
                style="color: #0ECB84">Ans</b-btn>
       <div style="float: right;">
-        <b-btn :disabled="checkDisable" variant="outline-primary" @click="checked">
+        <b-btn :disabled="checkDisable" :variant="state.next" @click="checked">
           <icon :name="state.check">
           </icon> {{state.text}}
         </b-btn>
@@ -45,6 +45,7 @@
           variant: "danger",
           check: "check-circle",
           text: "Check",
+          next: "outline-primary",
           showAns: false,
         },
         stateTrue: {
@@ -53,6 +54,7 @@
           variant: "success",
           check: "arrow-alt-circle-right",
           text: "Next",
+          next: "outline-success",
           showAns: true
         },
         state: null,

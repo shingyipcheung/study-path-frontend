@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-50">
+  <div>
     <div :id="problem_id">
     </div>
   </div>

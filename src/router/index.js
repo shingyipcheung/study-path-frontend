@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 const HomeView = () => import('@/views/HomeView');
-const ReportView = () => import('@/views/ReportView');
+const ReportView = () => import('@/views/ReportView')
+const LearningView = () => import('@/views/LearningView');
 const VideoView = () => import('@/views/VideoView');
 const ProblemView = () => import('@/views/ProblemView');
 
@@ -38,24 +39,41 @@ export default new Router({
       props: true
     },
     {
-      path: '/videos/:concept',
-      name: 'videos',
-      component: VideoView,
+      path: '/learning',
+      name: 'learning',
+      component: LearningView,
       meta: {
         keepAlive: false,
         scrollToTop: true
       },
-      props: true
+      props: true,
+      children: [{
+        path: ':concept',
+        components: {
+          videos: VideoView,
+          problems: ProblemView,
+        },
+      }]
     },
-    {
-      path: '/problems/:concept',
-      name: 'problems',
-      component: ProblemView,
-      meta: {
-        keepAlive: false,
-        scrollToTop: true
-      },
-      props: true
-    },
+    // {
+    //   path: '/videos/:concept',
+    //   name: 'videos',
+    //   component: VideoView,
+    //   meta: {
+    //     keepAlive: false,
+    //     scrollToTop: true
+    //   },
+    //   props: true
+    // },
+    // {
+    //   path: '/problems/:concept',
+    //   name: 'problems',
+    //   component: ProblemView,
+    //   meta: {
+    //     keepAlive: false,
+    //     scrollToTop: true
+    //   },
+    //   props: true
+    // },
   ],
 })

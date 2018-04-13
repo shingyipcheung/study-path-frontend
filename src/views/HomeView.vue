@@ -63,7 +63,6 @@
     },
     data() {
       return {
-        path: ["primitive_type", "variable", "array", "object_class", "instance_variable", "string", "operator", "branch", "loop", "method", "recursion", "nd_array"],
         loading: true,
       };
     },

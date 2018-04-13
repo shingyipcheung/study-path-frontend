@@ -217,7 +217,7 @@
               //.on("end", dragended)
             )
             .on("click", function (d) {
-              that.$router.push(/videos/ + d.name);
+              that.$router.push(/learning/ + d.name);
             });
 
           node.append("circle")

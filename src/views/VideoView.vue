@@ -8,10 +8,10 @@
                      :player-width="playerWidth"
                      :player-height="playerHeight">
             </youtube>
-            <p class="mb-0">{{playing_video.title}}</p>
+            <!--<p class="mb-0">{{playing_video.title}}</p>-->
         </b-col>
 
-        <b-col md="3" offset-md="1" sm="12" xs="12" class="list" style="padding: 10px; height:400px; overflow-y: scroll">
+        <b-col md="3" offset-md="1" sm="12" xs="12" class="list">
           <b-row class="link" v-for="(video, index) in videos" :key="video.vid" no-gutters align-v="center" @click.prevent="go(video)">
             <b-col cols="1">
               <p class="index">{{index + 1}}</p>
@@ -35,8 +35,8 @@
   import resize from 'vue-resize-directive'
 
   export default {
-    name: "playlist",
-    props: ['concept'],
+    name: "video-view",
+    //props: ['concept'],
     directives: {
         resize,
     },
@@ -48,8 +48,13 @@
         playerHeight: 400,
       }
     },
+    // beforeRouteUpdate (to, from, next) {
+    //   console.log(to)
+    //   this.fetchVideos(to.params.concept);
+    //   next()
+    // },
     created() {
-      this.fetchVideos(this.concept);
+      this.fetchVideos(this.$route.params.concept);
     },
     methods: {
       async fetchVideos(concept) {
@@ -63,8 +68,6 @@
       onPlayerResize() {
         let player = this.$refs.mainPlayer
           this.playerWidth = player.clientWidth
-        // console.log(player.clientHeight)
-        // this.playerHeight = player.clientHeight
       },
       go(video)
       {
@@ -89,6 +92,13 @@
   b-row {
     padding: 80px
   }
+
+  .list {
+    padding: 10px;
+    height:400px;
+    overflow-y: auto;
+  }
+
   .list::-webkit-scrollbar-track
   {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0, 0.1);
