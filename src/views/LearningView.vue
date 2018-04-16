@@ -17,7 +17,7 @@
 
       <b-row>
         <div class="mx-auto">
-          <transition name="view" mode="out-in" appear>
+          <transition name="slide-fade">
             <router-view :key="$route.fullPath" name="videos"></router-view>
           </transition>
         </div>
@@ -69,5 +69,17 @@
   }
   .active {
     color: #17dda9;
+  }
+
+  .slide-fade-enter-active {
+    transition: all 1s ease;
+  }
+  /*.slide-fade-leave-active {*/
+    /*transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);*/
+  /*}*/
+  .slide-fade-enter, .slide-fade-leave-to
+  /* .slide-fade-leave-active below version 2.1.8 */ {
+    transform: translateX(10px);
+    opacity: 0;
   }
 </style>

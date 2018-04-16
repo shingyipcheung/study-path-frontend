@@ -66,7 +66,8 @@
              this.state = this.stateTrue
              this.$toast.success(this.state.options.msg, this.state.options.title, {
                icon: '',
-               titleSize: 20
+               titleSize: 20,
+               timeout: 2000
              })
           }
           else
@@ -74,7 +75,8 @@
             this.state = this.stateFalse
             this.$toast.error(this.state.options.msg, this.state.options.title, {
               icon: '',
-              titleSize: 20
+              titleSize: 20,
+              timeout: 2000
             })
           }
         }
