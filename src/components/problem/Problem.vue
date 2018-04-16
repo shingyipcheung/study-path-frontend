@@ -1,13 +1,5 @@
 <template>
     <b-card>
-
-      <b-alert :show="dismissCountDown"
-               :variant="state.variant"
-               @dismissed="dismissCountDown=0"
-               @dismiss-count-down="countDownChanged">
-        <icon :name="state.icon"></icon> {{state.msg}}
-      </b-alert>
-
       <slot></slot>
       <hr>
       <b-btn v-b-modal.modalsm variant="link" v-if="state.showAns"
@@ -35,23 +27,21 @@
       return {
         checkDisable: true,
 
-        dismissSecs: 1.5,
-        dismissCountDown: 0,
-        showDismissibleAlert: false,
-
         stateFalse: {
-          icon: "times",
-          msg: "Try again!",
-          variant: "danger",
+          options: {
+            title: "×",
+            msg: "Try again!",
+          },
           check: "check-circle",
           text: "Check",
           next: "outline-primary",
           showAns: false,
         },
         stateTrue: {
-          icon: "check",
-          msg: "Well done!",
-          variant: "success",
+          options: {
+            title: '✔',
+            msg: "Well done! \n check the answer to see explanation",
+          },
           check: "arrow-alt-circle-right",
           text: "Next",
           next: "outline-success",
@@ -65,12 +55,6 @@
       this.state = this.stateFalse;
     },
     methods: {
-      countDownChanged (dismissCountDown) {
-        this.dismissCountDown = dismissCountDown
-      },
-      showAlert () {
-        this.dismissCountDown = this.dismissSecs
-      },
       checked() {
         if (this.state.showAns)
         {
@@ -78,8 +62,21 @@
           this.$parent.$parent.$emit('next')
         }
         else {
-          this.state = (this.choice === "true") ? this.stateTrue: this.stateFalse
-          this.showAlert()
+          if (this.choice === "true") {
+             this.state = this.stateTrue
+             this.$toast.success(this.state.options.msg, this.state.options.title, {
+               icon: '',
+               titleSize: 20
+             })
+          }
+          else
+          {
+            this.state = this.stateFalse
+            this.$toast.error(this.state.options.msg, this.state.options.title, {
+              icon: '',
+              titleSize: 20
+            })
+          }
         }
       }
     },

@@ -20,6 +20,12 @@ import 'vue-awesome/icons'
 import Icon from 'vue-awesome/components/Icon'
 Vue.component('icon', Icon);
 
+
+import VueIziToast from 'vue-izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+Vue.use(VueIziToast);
+
+
 Vue.config.productionTip = false;
 
 // import vuex store

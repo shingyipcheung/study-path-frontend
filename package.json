@@ -22,6 +22,7 @@
     "lodash": "^4.17.4",
     "vue": "^2.5.2",
     "vue-awesome": "^3.0.0",
+    "vue-izitoast": "^1.0.1",
     "vue-progressbar": "^0.7.4",
     "vue-resize-directive": "^1.0.1",
     "vue-resource": "^1.0.0",
