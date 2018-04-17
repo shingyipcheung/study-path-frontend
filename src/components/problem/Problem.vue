@@ -2,8 +2,10 @@
     <b-card>
       <slot></slot>
       <hr>
+      <!--see id=modalsm in solution.vue-->
       <b-btn v-b-modal.modalsm variant="link" v-if="state.showAns"
-               style="color: #0ECB84">Ans</b-btn>
+         style="color: #0ECB84">Ans</b-btn>
+
       <div style="float: right;">
         <b-btn :disabled="checkDisable" :variant="state.next" @click="checked">
           <icon :name="state.check">
@@ -58,7 +60,7 @@
       checked() {
         if (this.state.showAns)
         {
-          // hack! emit to problem problem
+          // hack! emit to problem view
           this.$parent.$parent.$emit('next')
         }
         else {

@@ -50,6 +50,9 @@ export default {
   getVideos(concept) {
     return instance.get(`/study_plan/videos/${concept}/`)
   },
+  getProblems(concept) {
+    return instance.get(`/study_plan/problems/${concept}/`)
+  },
   getProblemHTML(problem_id) {
     return instance.get(`/study_plan/problem/html/${problem_id}/`)
   }

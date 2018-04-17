@@ -3,7 +3,7 @@
 
     <b-col cols="2">
       <b-nav fill vertical>
-        <b-nav-item v-for="concept in concepts" :key="concept">
+        <b-nav-item v-for="concept in selectedPath" :key="concept">
           <router-link :to="`/learning/${concept}`" tag="li" active-class="active">
             <b-card>{{UpperName(concept)}}</b-card>
           </router-link>
@@ -22,11 +22,16 @@
           </transition>
         </div>
       </b-row>
-      <b-row>
-        <div class="mx-auto">
-          <router-view name="problems"></router-view>
-        </div>
-      </b-row>
+
+      <div>
+        <b-btn v-b-toggle.collapse1 variant="outline-success" size="sm">Practice</b-btn>
+        <b-collapse id="collapse1" class="mt-2">
+            <div class="mx-auto w-80">
+              <router-view :key="$route.fullPath" name="problems"></router-view>
+            </div>
+        </b-collapse>
+      </div>
+
     </b-col>
 
   </b-row>
@@ -35,6 +40,10 @@
 <script>
   import ProblemView from "./ProblemView";
   import VideoView from "./VideoView";
+  import { createNamespacedHelpers } from 'vuex'
+  const { mapGetters } = createNamespacedHelpers('learning_objects')
+
+
   export default {
     name: "learning-view",
     props: ['concept'],
@@ -43,8 +52,19 @@
     },
     data() {
       return {
-        concepts: ["primitive_type", "variable", "array", "object_class", "instance_variable", "string", "operator", "branch", "loop", "method", "recursion", "nd_array"]
+        //concepts: ["primitive_type", "variable", "array", "object_class", "instance_variable", "string", "operator", "branch", "loop", "method", "recursion", "nd_array"]
       }
+    },
+    computed: {
+      ...mapGetters({
+        selectedPath: 'selectedPath',
+      }),
+    },
+    mounted() {
+      this.$on('next_concept', () => {
+        console.log("rec")
+        this.$router.push(/learning/ + this.selectedPath[(this.selectedPath.indexOf(this.concept) + 1)]);
+      })
     },
     methods: {
       UpperName(name)

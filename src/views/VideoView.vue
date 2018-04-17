@@ -67,7 +67,7 @@
       },
       onPlayerResize() {
         let player = this.$refs.mainPlayer
-          this.playerWidth = player.clientWidth
+        // this.playerWidth = player.clientWidth
       },
       go(video)
       {

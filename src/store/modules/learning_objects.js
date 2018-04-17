@@ -9,7 +9,8 @@ const state = {
   concept_means: {},
   concept_edges: [],
   student_concept_scores: [],
-  filtered_students: []
+  filtered_students: [],
+  selected_path: []
 }
 
 // getters
@@ -18,7 +19,8 @@ const getters = {
   allMeans: state => state.concept_means,
   allConceptEdges: state => state.concept_edges,
   allStudentScores: state => state.student_concept_scores,
-  allFilteredStudents: state => state.filteredStudents
+  allFilteredStudents: state => state.filteredStudents,
+  selectedPath: state => state.selected_path,
 }
 
 // actions
@@ -29,6 +31,7 @@ const actions = {
         return;
       const { data } = await backend.fetchConcepts()
       commit(types.SET_CONCEPTS, data)
+      commit(types.SET_SELECTED_PATH, data)
     } catch(e) {
       console.log(e)
     }
@@ -81,6 +84,12 @@ const mutations = {
   },
   [types.SET_FILTERED_STUDENTS] (state, students) {
     Vue.set(state, 'filtered_students', students)
+  },
+  [types.SET_SELECTED_PATH] (state, path) {
+    Vue.set(state, 'selected_path', path)
+  },
+  [types.INIT_SELECTED_PATH] (state) {
+    Vue.set(state, 'selected_path', state.concepts)
   },
 }
 

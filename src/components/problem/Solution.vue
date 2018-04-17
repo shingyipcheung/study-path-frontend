@@ -2,9 +2,8 @@
 
   <div>
     <!-- Using modifiers -->
-
     <!-- element to collapse -->
-    <!--<b-collapse id="collapse">-->
+    <!--<b-collapse id="modalsm">-->
       <!--<b-card>-->
         <!--<slot></slot>-->
       <!--</b-card>-->

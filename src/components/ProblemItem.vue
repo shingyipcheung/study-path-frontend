@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :id="problem_id">
+    <div id="problem">
     </div>
   </div>
 </template>
@@ -32,9 +32,8 @@
             this.problem.$destroy()
             this.problem = null
           }
-
            this.problem = new Vue({
-              el: '#' + this.problem_id,
+              el: '#problem',
               template: data,
               // render,
               // staticRenderFns,
@@ -44,6 +43,8 @@
                 'multiplechoiceresponse': () => import('./problem/MultipleChoiceResponse'),
                 'problem': () => import('./problem/Problem'),
                 'solution': () => import('./problem/Solution'),
+                'numericalresponse': () => import('./problem/NumericalResponse'),
+                'formulaequationinput': () => import('./problem/FormulaEquationInput'),
               },
               // hack
               parent: this.$parent,

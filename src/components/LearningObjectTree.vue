@@ -113,7 +113,6 @@
           .range([this.margin.top, this.height - this.margin.bottom]);
 
           this.nodes.forEach((node, i) => {
-            console.log(Math.trunc(that.path.indexOf(node) / that.nodesPerColumn));
             this.nodes[i] = {
               name: node,
               fx: positionX(Math.trunc(that.path.indexOf(node) / that.nodesPerColumn)),

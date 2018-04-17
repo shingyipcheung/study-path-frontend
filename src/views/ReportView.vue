@@ -15,10 +15,10 @@
           <div class="card-title">
             <b-row>
               <b-col>
-                            <h4>Recommended Study Paths</h4>
+                <h4>Recommended Study Paths</h4>
               </b-col>
               <b-col>
-                            <div v-if="selectedIndex !== -1">
+                <div v-if="selectedIndex !== -1">
               <b-btn variant="link" @click="reset" size="sm" class="float-right">
                 <icon name="sync-alt" style="color: #5b5b5b;"></icon>
               </b-btn>
@@ -68,7 +68,8 @@
   import CountDownAlert from "../components/CountDownAlert";
   import LearningObjectTree from '../components/LearningObjectTree';
   import { createNamespacedHelpers } from 'vuex'
-  const { mapActions } = createNamespacedHelpers('learning_objects')
+  const { mapActions, mapMutations } = createNamespacedHelpers('learning_objects')
+
   import backend from '@/api/backend_axios';
 
   export default {
@@ -96,6 +97,7 @@
           this.fetchConceptEdges(),
       ])
       this.fetchReport(this.id);
+      this.resetSelectedPath()
     },
     watch: {
       id() {
@@ -103,6 +105,10 @@
       }
     },
     methods: {
+      ...mapMutations({
+        setSelectedPath: 'SET_SELECTED_PATH',
+        resetSelectedPath: 'INIT_SELECTED_PATH'
+      }),
       ...mapActions(['fetchConcepts', 'fetchConceptEdges']),
 
       clicked(index) {
@@ -112,6 +118,8 @@
         this.sortBy = null
         this.$nextTick(() => {
           const path = this.paths[index];
+          // will update the path in learning view
+          this.setSelectedPath(path);
           const names = _.map(this.table, "Learning Object");
           let temp = [];
           path.forEach(node => {
@@ -135,6 +143,7 @@
       },
       reset() {
         this.selectedIndex = -1
+        this.resetSelectedPath()
       }
     }
   }
