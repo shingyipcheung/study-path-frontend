@@ -4,7 +4,7 @@
       <hr>
       <!--see id=modalsm in solution.vue-->
       <b-btn v-b-modal.modalsm variant="link" v-if="state.showAns"
-         style="color: #0ECB84">Ans</b-btn>
+         style="color: #0ECB84">Explanation</b-btn>
 
       <div style="float: right;">
         <b-btn :disabled="checkDisable" :variant="state.next" @click="checked">
@@ -34,15 +34,15 @@
             title: "×",
             msg: "Try again!",
           },
-          check: "check-circle",
-          text: "Check",
+          check: "clipboard-list",
+          text: "Check Your Answer",
           next: "outline-primary",
           showAns: false,
         },
         stateTrue: {
           options: {
             title: '✔',
-            msg: "Well done! \n check the answer to see explanation",
+            msg: "Well done! \n check to see explanation",
           },
           check: "arrow-alt-circle-right",
           text: "Next",
@@ -64,7 +64,10 @@
           this.$parent.$parent.$emit('next')
         }
         else {
-          if (this.choice === "true") {
+          if (this.choice.correct === "true") {
+            this.choice.variant = "success"
+            // hack choice group
+            this.choice.$parent.disable = true
              this.state = this.stateTrue
              this.$toast.success(this.state.options.msg, this.state.options.title, {
                icon: '',

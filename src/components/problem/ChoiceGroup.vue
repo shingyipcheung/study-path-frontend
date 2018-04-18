@@ -18,23 +18,23 @@
     data() {
       return {
         choices: [],
-        previous: null
+        previous: null,
+        disable: false
       }
     },
     mounted() 
     {
       this.$on('clicked', (choice) => {
-        //console.log(choice)
-        if (this.previous != choice)
+        if (this.previous != choice && !this.disable)
         {
           if (this.previous)
             this.previous.toggle()
           this.previous = choice
           choice.toggle()
           let parent = this.$parent
-          while (parent.$options._componentTag !== 'problem')
+          while (parent.$options.name !== 'problem')
               parent = parent.$parent
-          parent.$emit('clicked', choice.correct)
+          parent.$emit('clicked', choice)
         }
       })
       // console.log(this.$children)
@@ -45,7 +45,7 @@
 </script>
 
 <style>
- @import url('https://fonts.googleapis.com/css?family=Hi+Melody');
+ /*@import url('https://fonts.googleapis.com/css?family=Hi+Melody');*/
   .list-group {
     list-style-type: none;
     margin-left: 2em;
@@ -62,10 +62,10 @@
     content: counter(item, upper-alpha);
 
     position: absolute;
-    left: -0.95em;
-    bottom: 3px;
-    font-family: 'Hi Melody', cursive;
-    font-size: 2em;
+    left: -1.5em;
+    bottom: -12px;
+    /*font-family: 'Hi Melody', cursive;*/
+    font-size: 1em;
     /* font-weight: bold; */
     width: 100%;
     height: 100%;

@@ -24,7 +24,10 @@
       </b-row>
 
       <div>
-        <b-btn v-b-toggle.collapse1 variant="outline-success" size="sm">Practice</b-btn>
+        <b-btn v-b-toggle.collapse1 variant="outline-success" size="sm" @click="showCollapse = !showCollapse">
+            Show Practice
+            <icon class="expand" :name="showCollapse ? 'angle-double-down' : 'angle-double-up'"></icon>
+        </b-btn>
         <b-collapse id="collapse1" class="mt-2">
             <div class="mx-auto w-80">
               <router-view :key="$route.fullPath" name="problems"></router-view>
@@ -52,6 +55,7 @@
     },
     data() {
       return {
+        showCollapse: true
         //concepts: ["primitive_type", "variable", "array", "object_class", "instance_variable", "string", "operator", "branch", "loop", "method", "recursion", "nd_array"]
       }
     },
@@ -102,4 +106,8 @@
     transform: translateX(10px);
     opacity: 0;
   }
+    .expand {
+        top:3px;
+        position: relative
+    }
 </style>

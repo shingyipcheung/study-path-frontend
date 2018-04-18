@@ -1,5 +1,5 @@
 <template>
-  <b-list-group-item :variant="variant" href="#" @click="clicked()">
+  <b-list-group-item :variant="variant" href="#" :disabled="disable" @click="clicked()">
     <slot></slot>
   </b-list-group-item>
 </template>
@@ -19,7 +19,8 @@
     },
     data() {
       return {
-        variant: ""
+        variant: "",
+        disable: false
       }
     },
     methods: {
