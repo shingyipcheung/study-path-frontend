@@ -83,7 +83,7 @@
         // start to draw, main entry
         let that = this;
         let colors, trim, positionX, positionY;
-
+        /*
         if (this.path === null || this.path === undefined)
         {
           colors = d3.scaleOrdinal(d3.schemeCategory10);
@@ -119,6 +119,41 @@
               fy: positionY(that.path.indexOf(node) % that.nodesPerColumn),
             };
           });
+        }
+        */
+        if (this.path === null || this.path === undefined)
+        {
+          colors = d3.scaleOrdinal(d3.schemeCategory10);
+
+          positionX = d3.scaleLinear()
+          .domain([0, this.nodes.length - 1])
+          .range([this.margin.left, this.width - this.margin.right]);
+
+          this.nodes.forEach((node, i) => {
+            this.nodes[i] = {
+              name: node,
+              // the node's fixed x-position
+              fx: positionX(i)
+            };
+          });
+        }
+        else
+        {
+          colors = d3.scaleSequential(d3Chromatic.interpolateOrRd).domain([this.path.length - 1, 0]);
+          trim = this.trimScale(this.path.length, 0.);
+
+          positionX = d3.scaleLinear()
+          .domain([0, this.nodes.length - 1])
+          .range([this.margin.left, this.width - this.margin.right]);
+
+          this.nodes.forEach((node, i) => {
+            this.nodes[i] = {
+              name: node,
+              // the node's fixed x-position
+              fx: positionX(that.path.indexOf(node))
+            };
+          });
+
         }
 
 
