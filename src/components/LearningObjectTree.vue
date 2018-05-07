@@ -1,11 +1,6 @@
 <template>
   <div id="root">
     <svg>
-      <defs>
-        <marker id="arrow" viewBox="-0 -5 10 10" refX="13" refY="0" orient="auto" markerWidth="8" markerHeight="8">
-          <path d="M 0,-5 L 10 ,0 L 0,5" fill="#999"></path>
-        </marker>
-      </defs>
     </svg>
   </div>
 </template>
@@ -66,8 +61,8 @@
     },
     methods: {
       trimScale(n, p) {
-        const s = n * p;
-        return d3.scaleLinear().domain([0, n - 1]).range([s, n - 1 - s]);
+        const space = n * p;
+        return d3.scaleLinear().domain([0, n - 1]).range([space, n - 1 - space]);
       },
       // main entry for the drawing function
       render: _.debounce(function() {
@@ -82,80 +77,34 @@
 
         // start to draw, main entry
         let that = this;
-        let colors, trim, positionX, positionY;
-        /*
-        if (this.path === null || this.path === undefined)
-        {
-          colors = d3.scaleOrdinal(d3.schemeCategory10);
-
-          positionX = d3.scaleLinear()
+        let positionX = d3.scaleLinear()
           .domain([0, this.nodes.length - 1])
           .range([this.margin.left, this.width - this.margin.right]);
+        let colors = d3.scaleOrdinal(d3.schemeCategory10);
 
-          this.nodes.forEach((node, i) => {
+        this.nodes.forEach((node, i) => {
             this.nodes[i] = {
               name: node,
               // the node's fixed x-position
               fx: positionX(i)
             };
-          });
-        }
-        else
+        });
+
+        if (this.path != null && this.path !== undefined)
         {
+          // override default colors
           colors = d3.scaleSequential(d3Chromatic.interpolateOrRd).domain([this.path.length - 1, 0]);
-          trim = this.trimScale(this.path.length, 0.);
-          positionX = d3.scaleLinear()
-          .domain([0, this.nodes.length / this.nodesPerColumn - 1])
-          .range([this.margin.left, this.width - this.margin.right]);
-
-          positionY = d3.scaleLinear()
-          .domain([0, this.nodesPerColumn])
-          .range([this.margin.top, this.height - this.margin.bottom]);
-
-          this.nodes.forEach((node, i) => {
-            this.nodes[i] = {
-              name: node,
-              fx: positionX(Math.trunc(that.path.indexOf(node) / that.nodesPerColumn)),
-              fy: positionY(that.path.indexOf(node) % that.nodesPerColumn),
-            };
-          });
-        }
-        */
-        if (this.path === null || this.path === undefined)
-        {
-          colors = d3.scaleOrdinal(d3.schemeCategory10);
-
-          positionX = d3.scaleLinear()
-          .domain([0, this.nodes.length - 1])
-          .range([this.margin.left, this.width - this.margin.right]);
-
+          const trim = this.trimScale(this.path.length, 0.);
+          this.nodes = _.cloneDeep(this.path);
           this.nodes.forEach((node, i) => {
             this.nodes[i] = {
               name: node,
               // the node's fixed x-position
+              tx: trim(i),
               fx: positionX(i)
             };
           });
         }
-        else
-        {
-          colors = d3.scaleSequential(d3Chromatic.interpolateOrRd).domain([this.path.length - 1, 0]);
-          trim = this.trimScale(this.path.length, 0.);
-
-          positionX = d3.scaleLinear()
-          .domain([0, this.nodes.length - 1])
-          .range([this.margin.left, this.width - this.margin.right]);
-
-          this.nodes.forEach((node, i) => {
-            this.nodes[i] = {
-              name: node,
-              // the node's fixed x-position
-              fx: positionX(that.path.indexOf(node))
-            };
-          });
-
-        }
-
 
         // set the color scale for the risk ratio labels
         let label_color = d3.scaleLinear()
@@ -170,6 +119,23 @@
           node,
           link;
         svg.selectAll("*").remove();
+
+        svg.append('defs').append('marker')
+          .attrs({
+            'id': 'arrow',
+            'viewBox': '-0 -5 10 10',
+            'refX': 13,
+            'refY': 0,
+            'orient': 'auto',
+            'markerWidth': 8,
+            'markerHeight': 8,
+          })
+          .append('path')
+          .attrs({
+            'd': 'M 0,-5 L 10 ,0 L 0,5',
+            'fill': '#999'
+          });
+
         // collide radius to prevent overlapping
         let radius = (this.width - 40) / this.nodes.length;
         let simulation = d3.forceSimulation()
@@ -257,11 +223,8 @@
           node.append("circle")
             .attr("r", 6)
             .style("fill", function (d, i) {
-              if (that.path != null && that.path !== undefined)
-              {
-                let index = that.path.indexOf(d.name);
-                return colors(trim(index));
-              }
+              if (d.tx !== undefined)
+                return colors(d.tx);
               return colors(i);
             })
             .on("mouseover", function () {
