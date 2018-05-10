@@ -4,8 +4,8 @@ import _ from 'lodash';
 import { cacheAdapterEnhancer } from 'axios-extensions';
 
 const instance = axios.create({
-  // baseUrl = 'http://127.0.0.1:8000'
-  baseURL: 'http://143.89.76.37:8000',
+  // for development
+  // baseURL: 'http://143.89.76.37:8000',
   // set global headers
   headers: {
     'Content-Type': 'application/json',
