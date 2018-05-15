@@ -4,6 +4,7 @@
     </svg>
   </div>
 </template>
+
 <script>
   // http://bl.ocks.org/fancellu/2c782394602a93921faff74e594d1bb1
   import * as d3 from 'd3';
@@ -11,6 +12,7 @@
 
   import "d3-selection-multi";
   import _ from 'lodash';
+  import dagre from 'dagre';
 
   import { createNamespacedHelpers } from 'vuex';
 
@@ -27,12 +29,13 @@
       return {
         nodes: [],
         links: [],
+        linkSet: new Set(),
         width: 1100,
         height: 300,
         margin: {
           top: 66,
           right: 60,
-          bottom: 20,
+          bottom: 66,
           left: 60
         },
         nodesPerColumn: 3,
@@ -74,7 +77,6 @@
         // get width and height
         let root = d3.select(this.$el).node();
         this.width = root.getBoundingClientRect().width;
-
         // start to draw, main entry
         let that = this;
         let positionX = d3.scaleLinear()
@@ -82,12 +84,46 @@
           .range([this.margin.left, this.width - this.margin.right]);
         let colors = d3.scaleOrdinal(d3.schemeCategory10);
 
+        let g = new dagre.graphlib.Graph();
+        let radius = (this.width - 40) / this.nodes.length;
+        console.log(radius)
+        g.setGraph({});
+        g.setDefaultEdgeLabel(function() { return {}; });
+        g.setGraph({
+          rankdir: 'LR',
+          edgesep: 50,
+          ranksep: 200,
+          marginx: 100,
+          marginy: 30,
+          ranker: 'longest-path'
+        })
         this.nodes.forEach((node, i) => {
             this.nodes[i] = {
               name: node,
               // the node's fixed x-position
-              fx: positionX(i)
+              // fx: positionX(i),
+              targetY: that.height / 2
             };
+            g.setNode(node, {label: node})
+        });
+
+        this.links.forEach((link) => {
+          this.linkSet.add(link.source + "," + link.target)
+          g.setEdge(link.source, link.target)
+        })
+
+        dagre.layout(g)
+
+        this.nodes.forEach((node, i) => {
+            const n = g.node(node.name)
+            node.targetX = n.x;
+            node.targetY = n.y;
+            // this.nodes[i] = {
+            //   name: node,
+            //   // the node's fixed x-position
+            //   fx: positionX(i),
+            //   targetY: that.height / 2
+            // };
         });
 
         if (this.path != null && this.path !== undefined)
@@ -99,9 +135,11 @@
           this.nodes.forEach((node, i) => {
             this.nodes[i] = {
               name: node,
+              trimIndex: trim(i),
               // the node's fixed x-position
-              tx: trim(i),
-              fx: positionX(i)
+              fx: positionX(i),
+              targetX: g.node(node).x,
+              targetY: g.node(node).y//that.height / 2
             };
           });
         }
@@ -111,14 +149,15 @@
           .domain(d3.extent(this.links, d => d.value))
           .range([d3.rgb(211, 211, 211), d3.rgb(211, 211, 211)]);
 
-        let svg = d3.select(this.$el).select("svg")
+        d3.select(this.$el).selectAll("*").remove();
+
+        let svg = d3.select(this.$el).append("svg")
             .attr("width", this.width)
-            .attr("height", this.height),
-          edgepaths,
-          edgelabels,
-          node,
-          link;
-        svg.selectAll("*").remove();
+            .attr("height", this.height);
+            // .call(d3.zoom().scaleExtent([0.5, 2]).on("zoom", function () {
+            //   svg.attr("transform", d3.event.transform)
+            // })).append("g")
+        let edgepaths, edgelabels, node, link;
 
         svg.append('defs').append('marker')
           .attrs({
@@ -137,16 +176,20 @@
           });
 
         // collide radius to prevent overlapping
-        let radius = (this.width - 40) / this.nodes.length;
         let simulation = d3.forceSimulation()
           .force("link", d3.forceLink()
             .id(d => d.name)
             .distance(100)
             .strength(1))
           .force("charge", d3.forceManyBody())
-          .alphaTarget(0.5)
-          .force("center", d3.forceCenter(this.width / 2, this.height / 2))
-          .force("collide", d3.forceCollide(radius / 2));
+          // .alphaDecay(0.03)
+          // .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+          .force("x", d3.forceX(function(d) { return d.targetX;}))
+          .force("y", d3.forceY(function(d) { return d.targetY;}))
+          // .alphaTarget(0.5)
+          .alphaMin(0.00001)
+          // .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+          .force("collide", d3.forceCollide(radius / 1.8));
 
         let links = this.links;
         let nodes = this.nodes;
@@ -219,19 +262,35 @@
             .on("click", function (d) {
               that.$router.push(/learning/ + d.name);
             });
-
+          function isConnected(source, target) {
+            return that.linkSet.has(source.name+","+target.name)
+              || that.linkSet.has(target.name+","+source.name)
+          }
           node.append("circle")
             .attr("r", 6)
             .style("fill", function (d, i) {
-              if (d.tx !== undefined)
-                return colors(d.tx);
+              if (d.trimIndex !== undefined)
+                return colors(d.trimIndex);
               return colors(i);
             })
-            .on("mouseover", function () {
+            .on("mouseover", function (d) {
               d3.select(this).attr("r", 8);
+              node.style("fill-opacity", function(other) {
+                if(other != d && !isConnected(d,other))
+                  return 0.2;
+                return 1;
+              });
+              // // also style link accordingly
+              // link.style("stroke-opacity", function(o) {
+              //     return o.source === d || o.target === d ? 1 : opacity;
+              // });
+              // link.style("stroke", function(o){
+              //     return o.source === d || o.target === d ? o.source.colour : "#ddd";
+              // });
             })
             .on('mouseout', function () {
               d3.select(this).transition().duration(500).attr("r", 6);
+              node.style("fill-opacity", 1);
             });
 
           node.append("text")
