@@ -90,31 +90,31 @@
         g.setDefaultEdgeLabel(function() { return {}; });
         g.setGraph({
           rankdir: 'LR',
-          nodesep: xsep * 1,
-          // vertical sep
           edgesep: 0,
+          // vertical sep
+          nodesep: xsep,
           // horizontal sep
           ranksep: xsep,
           marginx: this.margin.left,
           marginy: this.margin.top,
           ranker: 'longest-path'
-        })
+        });
         this.nodes.forEach((node, i) => {
-            g.setNode(node, {label: node})
+            g.setNode(node, {label: node});
             this.nodes[i] = {
               name: node,
             };
         });
 
         this.links.forEach((link) => {
-          this.linkSet.add(link.source + "," + link.target)
+          this.linkSet.add(link.source + "," + link.target);
           g.setEdge(link.source, link.target)
-        })
+        });
 
-        dagre.layout(g)
-        this.height = g.graph().height
+        dagre.layout(g);
+        this.height = g.graph().height;
         this.nodes.forEach((node, i) => {
-            const n = g.node(node.name)
+            const n = g.node(node.name);
             node.fx = n.x;
             node.targetY = n.y + 10; //   node.targetY: that.height / 2
             //   // the node's fixed x-position
@@ -270,7 +270,7 @@
             .on("mouseover", function (d) {
               d3.select(this).attr("r", 8);
               node.style("fill-opacity", function(other) {
-                if(other != d && !isConnected(d,other))
+                if(other !== d && !isConnected(d,other))
                   return 0.1;
                 return 1;
               });
