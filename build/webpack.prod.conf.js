@@ -9,7 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
-const UglifyJsPlugin = require('uglifyjs-3-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const env = config.build.env
 
@@ -17,7 +17,7 @@ const webpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({
       sourceMap: config.build.productionSourceMap,
-      extract: true
+      extract: true,
     })
   },
   devtool: config.build.productionSourceMap ? '#source-map' : false,
@@ -35,9 +35,12 @@ const webpackConfig = merge(baseWebpackConfig, {
     new UglifyJsPlugin({
       sourceMap: true,
       parallel: true,
-      uglifyOptions: {
-        ecma: 7,
-      }
+      // uglifyOptions: {
+      //   ecma:8,
+      //   compress: {
+      //     warnings: false
+      //   }
+      // }
     }),
     //new MinifyPlugin(),
     // extract css into its own file
