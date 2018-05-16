@@ -33,9 +33,9 @@
         width: 1100,
         height: 300,
         margin: {
-          top: 66,
+          top: 30,
           right: 60,
-          bottom: 66,
+          bottom: 30,
           left: 60
         },
         nodesPerColumn: 3,
@@ -85,26 +85,25 @@
         let colors = d3.scaleOrdinal(d3.schemeCategory10);
 
         let g = new dagre.graphlib.Graph();
-        let radius = (this.width - 40) / this.nodes.length;
-        console.log(radius)
+        let xsep = positionX(1) - positionX(0);
         g.setGraph({});
         g.setDefaultEdgeLabel(function() { return {}; });
         g.setGraph({
           rankdir: 'LR',
-          edgesep: 50,
-          ranksep: 200,
-          marginx: 100,
-          marginy: 30,
+          nodesep: xsep * 1,
+          // vertical sep
+          edgesep: 0,
+          // horizontal sep
+          ranksep: xsep,
+          marginx: this.margin.left,
+          marginy: this.margin.top,
           ranker: 'longest-path'
         })
         this.nodes.forEach((node, i) => {
+            g.setNode(node, {label: node})
             this.nodes[i] = {
               name: node,
-              // the node's fixed x-position
-              // fx: positionX(i),
-              targetY: that.height / 2
             };
-            g.setNode(node, {label: node})
         });
 
         this.links.forEach((link) => {
@@ -113,17 +112,13 @@
         })
 
         dagre.layout(g)
-
+        this.height = g.graph().height
         this.nodes.forEach((node, i) => {
             const n = g.node(node.name)
-            node.targetX = n.x;
-            node.targetY = n.y;
-            // this.nodes[i] = {
-            //   name: node,
+            node.fx = n.x;
+            node.targetY = n.y + 10; //   node.targetY: that.height / 2
             //   // the node's fixed x-position
-            //   fx: positionX(i),
-            //   targetY: that.height / 2
-            // };
+            node.fx = positionX(i);
         });
 
         if (this.path != null && this.path !== undefined)
@@ -138,8 +133,8 @@
               trimIndex: trim(i),
               // the node's fixed x-position
               fx: positionX(i),
-              targetX: g.node(node).x,
-              targetY: g.node(node).y//that.height / 2
+              // targetX: g.node(node).x,
+              targetY: g.node(node).y + 10//that.height / 2
             };
           });
         }
@@ -179,17 +174,16 @@
         let simulation = d3.forceSimulation()
           .force("link", d3.forceLink()
             .id(d => d.name)
-            .distance(100)
-            .strength(1))
+            .distance(xsep)
+            .strength(0.5))
           .force("charge", d3.forceManyBody())
           // .alphaDecay(0.03)
-          // .force("center", d3.forceCenter(this.width / 2, this.height / 2))
           .force("x", d3.forceX(function(d) { return d.targetX;}))
           .force("y", d3.forceY(function(d) { return d.targetY;}))
           // .alphaTarget(0.5)
-          .alphaMin(0.00001)
+          .alphaMin(0.0001)
           // .force("center", d3.forceCenter(this.width / 2, this.height / 2))
-          .force("collide", d3.forceCollide(radius / 1.8));
+          .force("collide", d3.forceCollide(xsep));
 
         let links = this.links;
         let nodes = this.nodes;
@@ -277,20 +271,22 @@
               d3.select(this).attr("r", 8);
               node.style("fill-opacity", function(other) {
                 if(other != d && !isConnected(d,other))
-                  return 0.2;
+                  return 0.1;
                 return 1;
               });
               // // also style link accordingly
-              // link.style("stroke-opacity", function(o) {
-              //     return o.source === d || o.target === d ? 1 : opacity;
-              // });
-              // link.style("stroke", function(o){
-              //     return o.source === d || o.target === d ? o.source.colour : "#ddd";
-              // });
+              link.style("stroke-opacity", function(o) {
+                  return o.source === d || o.target === d ? 0.6 : 0.2;
+              });
+              link.style("stroke", function(o){
+                  return o.source === d || o.target === d ? "#000" : link.style("stroke");
+              });
             })
             .on('mouseout', function () {
               d3.select(this).transition().duration(500).attr("r", 6);
               node.style("fill-opacity", 1);
+              link.style("stroke-opacity", 0.6);
+              link.style("stroke", "#999");
             });
 
           node.append("text")
