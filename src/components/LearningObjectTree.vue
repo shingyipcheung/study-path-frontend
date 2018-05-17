@@ -90,8 +90,8 @@
         g.setDefaultEdgeLabel(function() { return {}; });
         g.setGraph({
           rankdir: 'LR',
-          edgesep: 0,
           // vertical sep
+          edgesep: 0,
           nodesep: xsep,
           // horizontal sep
           ranksep: xsep,
@@ -115,8 +115,8 @@
         this.height = g.graph().height;
         this.nodes.forEach((node, i) => {
             const n = g.node(node.name);
-            node.fx = n.x;
-            node.targetY = n.y + 10; //   node.targetY: that.height / 2
+            // node.fx = n.x;
+            node.targetY = n.y;
             //   // the node's fixed x-position
             node.fx = positionX(i);
         });
@@ -134,7 +134,7 @@
               // the node's fixed x-position
               fx: positionX(i),
               // targetX: g.node(node).x,
-              targetY: g.node(node).y + 10//that.height / 2
+              targetY: g.node(node).y
             };
           });
         }
@@ -181,8 +181,8 @@
           .force("x", d3.forceX(function(d) { return d.targetX;}))
           .force("y", d3.forceY(function(d) { return d.targetY;}))
           // .alphaTarget(0.5)
-          .alphaMin(0.0001)
-          // .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+          .alphaMin(0.01)
+          // .force("center", d3.forceCenter(this.width / 2, this.height / 2 + this.margin.top))
           .force("collide", d3.forceCollide(xsep));
 
         let links = this.links;
