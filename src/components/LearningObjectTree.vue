@@ -1,7 +1,42 @@
 <template>
   <div id="root">
-    <svg>
+    <div style="float: right">
+      <b-dropdown variant="link" size="lg" no-caret right>
+        <template slot="button-content">
+          <icon name="sliders-h" style="color: #5b5b5b;"></icon>
+        </template>
+        <b-dropdown-header style="height:auto">Settings</b-dropdown-header>
+        <b-dropdown-divider></b-dropdown-divider>
+        <b-dropdown-header>height
+          <vue-slider ref="slider"
+                      v-model="slideValue"
+                      :value="1"
+                      :min="0" :max="2"
+                      :interval="0.1"
+                      tooltip="hover"
+                      :real-time="true"
+                      @callback="dragEnd">
+          </vue-slider>
+        </b-dropdown-header>
+      </b-dropdown>
+    </div>
+    <svg ref="svg">
     </svg>
+    <div v-if="sliderShow">
+      <b-row no-gutters class="text-center" align-v="center">
+        <b-col cols="1">Earlier</b-col>
+        <b-col cols="10">
+          <vue-slider :processStyle="processStyle"
+                      :dot-size="0"
+                      :clickable="false"
+                      :value="1"
+                      :min="0" :max="1"
+                      :tooltip="false">
+          </vue-slider>
+        </b-col>
+        <b-col cols="1">Later</b-col>
+      </b-row>
+    </div>
   </div>
 </template>
 
@@ -15,11 +50,14 @@
   import dagre from 'dagre';
 
   import { createNamespacedHelpers } from 'vuex';
-
+  import vueSlider from 'vue-slider-component'
   const { mapGetters } = createNamespacedHelpers('learning_objects');
 
   export default {
     name: "learning-object-tree",
+    components: {
+        vueSlider
+    },
     props: {
 		  path: {
 		    type: Array,
@@ -39,6 +77,11 @@
           left: 60
         },
         nodesPerColumn: 3,
+        slideValue: 1,
+        processStyle: {
+            "backgroundImage": "-webkit-linear-gradient(left, #970b13, #fee3d6)"
+        },
+        sliderShow: false
       }
     },
     computed: {
@@ -63,9 +106,8 @@
       this.watchCollection(['concepts', 'edges'], this.render);
     },
     methods: {
-      trimScale(n, p) {
-        const space = n * p;
-        return d3.scaleLinear().domain([0, n - 1]).range([space, n - 1 - space]);
+      dragEnd() {
+        this.render();
       },
       // main entry for the drawing function
       render: _.debounce(function() {
@@ -92,7 +134,7 @@
           rankdir: 'LR',
           // vertical sep
           edgesep: 0,
-          nodesep: xsep,
+          nodesep: xsep * this.slideValue,
           // horizontal sep
           ranksep: xsep,
           marginx: this.margin.left,
@@ -124,13 +166,13 @@
         if (this.path != null && this.path !== undefined)
         {
           // override default colors
-          colors = d3.scaleSequential(d3Chromatic.interpolateOrRd).domain([this.path.length - 1, 0]);
-          const trim = this.trimScale(this.path.length, 0.);
+          this.sliderShow = true;
+          const seq = d3.scaleSequential(d3Chromatic.interpolateReds).domain([0, 1]);
+          colors = d3.scaleLinear().domain([this.path.length - 1, 0]).range([seq(0.1), seq(0.9)]).interpolate(d3.interpolateCubehelix.gamma(1));
           this.nodes = _.cloneDeep(this.path);
           this.nodes.forEach((node, i) => {
             this.nodes[i] = {
               name: node,
-              trimIndex: trim(i),
               // the node's fixed x-position
               fx: positionX(i),
               // targetX: g.node(node).x,
@@ -138,17 +180,18 @@
             };
           });
         }
+        else {
+          this.sliderShow = false;
+        }
 
         // set the color scale for the risk ratio labels
         let label_color = d3.scaleLinear()
           .domain(d3.extent(this.links, d => d.value))
           .range([d3.rgb(211, 211, 211), d3.rgb(211, 211, 211)]);
 
-        d3.select(this.$el).selectAll("*").remove();
-
-        let svg = d3.select(this.$el).append("svg")
-            .attr("width", this.width)
-            .attr("height", this.height);
+        let svg = d3.select(this.$refs.svg);
+        svg.selectAll("*").remove();
+        svg.attr("width", this.width).attr("height", this.height);
             // .call(d3.zoom().scaleExtent([0.5, 2]).on("zoom", function () {
             //   svg.attr("transform", d3.event.transform)
             // })).append("g")
@@ -263,8 +306,6 @@
           node.append("circle")
             .attr("r", 6)
             .style("fill", function (d, i) {
-              if (d.trimIndex !== undefined)
-                return colors(d.trimIndex);
               return colors(i);
             })
             .on("mouseover", function (d) {
@@ -350,7 +391,7 @@
           // d.fx = d3.event.x;
           d.fy = d3.event.y;
         }
-      }, 200)
+      }, 500)
       // debounce end
     }
   }
@@ -361,6 +402,10 @@
     width: 100%;
     svg {
       width: 100%;
+    }
+    .dropdown-header {
+      padding-top: 0;
+      padding-bottom: 0;
     }
   }
 </style>
