@@ -4,7 +4,7 @@
       <hr>
       <!--see id=modalsm in solution.vue-->
       <b-btn v-b-modal.modalsm variant="link" v-if="state.showAns"
-         style="color: #0ECB84">Explanation</b-btn>
+         style="color: #0ECB84"><icon name="flask"></icon> Explanation</b-btn>
 
       <div style="float: right;">
         <b-btn :disabled="checkDisable" :variant="state.next" @click="checked">
