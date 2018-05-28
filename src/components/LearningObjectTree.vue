@@ -196,7 +196,6 @@
             //   svg.attr("transform", d3.event.transform)
             // })).append("g")
         let edgepaths, edgelabels, node, link;
-
         svg.append('defs').append('marker')
           .attrs({
             'id': 'arrow',
@@ -241,11 +240,6 @@
             .attr("class", "link")
             .attr('marker-end', 'url(#arrow)');
 
-          link.append("title")
-            .text(function (d) {
-              return d.value;
-            });
-
           edgepaths = svg.selectAll(".edgepath")
             .data(links)
             .enter()
@@ -281,9 +275,7 @@
             .style("text-anchor", "middle")
             .style("pointer-events", "none")
             .attr("startOffset", "50%")
-            .text(function (d) {
-              return d.value.toFixed(2)
-            });
+            .text((d) => d.value.toFixed(2));
           // .attr("color", d => label_color(d.value));
 
           node = svg.selectAll(".node")
@@ -300,8 +292,8 @@
               that.$router.push(/learning/ + d.name);
             });
           function isConnected(source, target) {
-            return that.linkSet.has(source.name+","+target.name)
-              || that.linkSet.has(target.name+","+source.name)
+            return that.linkSet.has(source.name + "," + target.name)
+              || that.linkSet.has(target.name + "," + source.name)
           }
           node.append("circle")
             .attr("r", 6)
@@ -333,9 +325,7 @@
           node.append("text")
             .attr("dy", -7)
             .attr("text-anchor", "middle")
-            .text(function (d) {
-              return d.name;
-            });
+            .text((d) => d.name);
 
           simulation.nodes(nodes)
             .on("tick", ticked);
@@ -348,15 +338,15 @@
           link.attr("x1", function (d) {
             return d.source.x;
           })
-            .attr("y1", function (d) {
-              return d.source.y;
-            })
-            .attr("x2", function (d) {
-              return d.target.x;
-            })
-            .attr("y2", function (d) {
-              return d.target.y;
-            });
+          .attr("y1", function (d) {
+            return d.source.y;
+          })
+          .attr("x2", function (d) {
+            return d.target.x;
+          })
+          .attr("y2", function (d) {
+            return d.target.y;
+          });
 
           node.attr("transform", function (d) {
             return "translate(" + d.x + ", " + d.y + ")";
