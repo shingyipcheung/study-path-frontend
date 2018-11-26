@@ -1,6 +1,8 @@
-# edxfront
-
+# study-path-frontend
 > A Vue.js project
+
+## Live demo
+http://143.89.76.37:8000/
 
 ## Build Setup
 
