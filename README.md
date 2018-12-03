@@ -1,8 +1,9 @@
 # study-path-frontend
 > A Vue.js project
 
-## Live demo
+## Live demo and video
 http://143.89.76.37:8000/
+https://youtu.be/KdxVHWSMNi4
 
 ## Build Setup
 
